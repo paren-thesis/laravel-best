@@ -80,6 +80,9 @@ class SupervisionController extends Controller
         \Illuminate\Support\Facades\Mail::to($supervisor->email)
             ->queue(new \App\Mail\SupervisorAssigned($supervision));
 
+        // Dispatch real-time WebSocket broadcast event
+        event(new \App\Events\SupervisorAssignedEvent($supervision));
+
         return response()->json([
             'message' => "Team assigned to supervisor {$supervisor->name} successfully",
             'supervision' => $supervision->load(['team', 'supervisor'])

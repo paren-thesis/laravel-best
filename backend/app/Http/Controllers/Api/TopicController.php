@@ -85,6 +85,9 @@ class TopicController extends Controller
             }
         }
 
+        // Dispatch real-time WebSocket broadcast event
+        event(new \App\Events\TopicStatusUpdatedEvent($topic));
+
         return response()->json([
             'message' => "Topic marked as {$validated['status']}",
             'topic' => $topic->load('reviewer')
