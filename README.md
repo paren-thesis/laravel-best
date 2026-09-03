@@ -169,3 +169,35 @@ laravel-best/
 ├── README.md                 # Complete System Documentation
 └── TROUBLESHOOT.md           # Troubleshooting & Diagnostic Guide
 ```
+
+---
+
+## **8. Container Management & Useful Commands**
+
+### **Stopping & Shutting Down Containers**
+```powershell
+# Stop all running container services (preserves data):
+docker compose stop
+
+# Stop and remove containers, networks, and volumes cleanly:
+docker compose down
+```
+
+### **Starting & Restarting Services**
+```powershell
+# Start stopped containers:
+docker compose start
+
+# Restart specific container services (e.g. app or frontend):
+docker compose restart app frontend
+```
+
+### **Monitoring Container Logs & Status**
+```powershell
+# Check status of running services:
+docker compose ps
+
+# Tail live log outputs from all services:
+docker compose logs --tail=30 -f
+```
+
