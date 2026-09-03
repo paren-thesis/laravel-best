@@ -10,7 +10,17 @@ class TopicController extends Controller
 {
     public function index(Request $request)
     {
+        $user = $request->user();
         $query = Topic::with(['team.members', 'reviewer']);
+
+        // Role-based privacy scoping
+        if ($user->hasRole('student')) {
+            $studentTeamIds = $user->teams->pluck('id');
+            $query->where(function ($q) use ($studentTeamIds) {
+                $q->whereIn('team_id', $studentTeamIds)
+                  ->orWhere('status', 'approved');
+            });
+        }
 
         if ($request->has('status')) {
             $query->where('status', $request->status);

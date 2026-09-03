@@ -259,7 +259,8 @@ export const App: React.FC = () => {
         {/* Proposals List Section */}
         <section className="space-y-4">
           <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-            <FileText className="w-5 h-5 text-indigo-400" /> Submitted Proposals & Topics
+            <FileText className="w-5 h-5 text-indigo-400" />
+            {isStudent ? "My Team's Proposals & Approved Topics Bank" : "Department Proposal Submissions & Review Queue"}
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

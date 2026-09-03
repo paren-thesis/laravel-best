@@ -27,7 +27,7 @@ class DefensePanel extends Model
 
     public function members()
     {
-        return $this->belongsToMany(User::class, 'defense_panel_members')
+        return $this->belongsToMany(User::class, 'defense_panel_members', 'panel_id', 'user_id')
                     ->withPivot('role')
                     ->withTimestamps();
     }
