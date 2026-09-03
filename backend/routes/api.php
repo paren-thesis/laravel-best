@@ -42,4 +42,8 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
     // Software Deliverables
     Route::post('/deliverables', [DeliverableController::class, 'store']);
+
+    // Multi-Format Broadsheet & Team Exporters
+    Route::get('/exports/broadsheet/csv', [\App\Http\Controllers\Api\ExportController::class, 'exportBroadsheetCsv'])->middleware('role:coordinator|admin|supervisor');
+    Route::get('/exports/broadsheet/pdf', [\App\Http\Controllers\Api\ExportController::class, 'exportBroadsheetPdf'])->middleware('role:coordinator|admin|supervisor');
 });

@@ -61,7 +61,8 @@ export const App: React.FC = () => {
   const handleProposalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const teamId = teams[0]?.id || 1;
+      const myTeam = teams.find((t: any) => t.members?.some((m: any) => m.id === user?.id)) || teams[0];
+      const teamId = myTeam?.id || 1;
       await api.post('/topics', {
         team_id: teamId,
         title: proposalTitle,
@@ -118,7 +119,8 @@ export const App: React.FC = () => {
   const handleDeliverableSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const teamId = teams[0]?.id || 1;
+      const myTeam = teams.find((t: any) => t.members?.some((m: any) => m.id === user?.id)) || teams[0];
+      const teamId = myTeam?.id || 1;
       await api.post('/deliverables', {
         team_id: teamId,
         github_repository_url: githubUrl,
@@ -203,16 +205,34 @@ export const App: React.FC = () => {
         {/* Coordinator Controls Section */}
         {isCoordinator && (
           <section className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <h3 className="text-lg font-semibold text-white flex items-center gap-2">
                 <Users className="w-5 h-5 text-indigo-400" /> Coordinator Management Tools
               </h3>
-              <button
-                onClick={handleAutoGroup}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-xl shadow-lg shadow-indigo-600/20 transition-all flex items-center gap-2"
-              >
-                <Plus className="w-4 h-4" /> Run Auto-Grouping Tool
-              </button>
+              <div className="flex items-center gap-3">
+                <a
+                  href="http://localhost:8000/api/v1/exports/broadsheet/csv"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-3.5 py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 font-medium text-xs rounded-xl transition-all flex items-center gap-1.5"
+                >
+                  <FileText className="w-4 h-4" /> Export Broadsheet (CSV)
+                </a>
+                <a
+                  href="http://localhost:8000/api/v1/exports/broadsheet/pdf"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-3.5 py-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 font-medium text-xs rounded-xl transition-all flex items-center gap-1.5"
+                >
+                  <FileText className="w-4 h-4" /> Export Broadsheet (PDF)
+                </a>
+                <button
+                  onClick={handleAutoGroup}
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-xl shadow-lg shadow-indigo-600/20 transition-all flex items-center gap-1.5"
+                >
+                  <Plus className="w-4 h-4" /> Run Auto-Grouping Tool
+                </button>
+              </div>
             </div>
 
             {/* Supervisor Allocation Form */}
@@ -239,8 +259,8 @@ export const App: React.FC = () => {
                 >
                   <option value="">Select Supervisor...</option>
                   {supervisors.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name} ({s.assigned_count}/{s.capacity} teams)
+                    <option key={s.id} value={s.user_id || s.user?.id}>
+                      {s.user?.name || s.name || `Supervisor #${s.id}`} ({s.current_team_count ?? s.assigned_count ?? 0}/{s.max_team_capacity ?? s.capacity ?? 5} teams)
                     </option>
                   ))}
                 </select>
@@ -269,34 +289,39 @@ export const App: React.FC = () => {
                 No project proposals submitted yet.
               </div>
             ) : (
-              topics.map((t) => (
-                <div key={t.id} className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h4 className="font-semibold text-slate-100 text-base">{t.title}</h4>
-                      <p className="text-xs text-slate-400">Team: {t.team?.name || 'Team 1'}</p>
-                    </div>
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${
-                      t.status === 'approved' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
-                      t.status === 'rejected' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' :
-                      'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                    }`}>
-                      {t.status}
-                    </span>
-                  </div>
+              topics.map((t) => {
+                const stackList = Array.isArray(t.tech_stack)
+                  ? t.tech_stack
+                  : (typeof t.tech_stack === 'string' ? JSON.parse(t.tech_stack || '[]') : []);
 
-                  <p className="text-xs text-slate-300 line-clamp-3">{t.abstract}</p>
-
-                  {/* Tech Stack Pills */}
-                  {t.tech_stack && (
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {t.tech_stack.map((tech: string, i: number) => (
-                        <span key={i} className="px-2 py-0.5 rounded-md bg-slate-800 text-slate-400 text-[10px] font-mono">
-                          {tech}
-                        </span>
-                      ))}
+                return (
+                  <div key={t.id} className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-4">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h4 className="font-semibold text-slate-100 text-base">{t.title}</h4>
+                        <p className="text-xs text-slate-400">Team: {t.team?.name || 'Team 1'}</p>
+                      </div>
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${
+                        t.status === 'approved' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                        t.status === 'rejected' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' :
+                        'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                      }`}>
+                        {t.status}
+                      </span>
                     </div>
-                  )}
+
+                    <p className="text-xs text-slate-300 line-clamp-3">{t.abstract}</p>
+
+                    {/* Tech Stack Pills */}
+                    {stackList && stackList.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {stackList.map((tech: string, i: number) => (
+                          <span key={i} className="px-2 py-0.5 rounded-md bg-slate-800 text-slate-400 text-[10px] font-mono">
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    )}
 
                   {/* Coordinator Approval Action Buttons */}
                   {isCoordinator && t.status === 'submitted' && (
@@ -406,7 +431,137 @@ export const App: React.FC = () => {
                 </button>
               </form>
             </section>
-          </div>
+        {/* Student Peer Evaluation Section */}
+        {isStudent && (
+          <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-4">
+            <h3 className="text-base font-semibold text-white flex items-center gap-2">
+              <Award className="w-4 h-4 text-indigo-400" /> Teammate Peer Evaluation
+            </h3>
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              try {
+                const targetEvaluatee = e.currentTarget.evaluatee_id.value;
+                const scoreVal = e.currentTarget.score.value;
+                const commentsVal = e.currentTarget.comments.value;
+                const myTeam = teams.find((t: any) => t.members?.some((m: any) => m.id === user?.id)) || teams[0];
+                await api.post(`/teams/${myTeam?.id || 1}/peer-evaluations`, {
+                  evaluatee_id: targetEvaluatee,
+                  score: scoreVal,
+                  comments: commentsVal,
+                });
+                setMessage('Peer evaluation submitted successfully!');
+                e.currentTarget.reset();
+              } catch (err: any) {
+                setMessage(err.response?.data?.message || 'Peer evaluation submission failed');
+              }
+            }} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <input
+                name="evaluatee_id"
+                type="number"
+                required
+                placeholder="Teammate User ID"
+                className="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500"
+              />
+              <input
+                name="score"
+                type="number"
+                min="1"
+                max="10"
+                required
+                placeholder="Score (1 - 10)"
+                className="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500"
+              />
+              <input
+                name="comments"
+                type="text"
+                required
+                placeholder="Constructive feedback comments"
+                className="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500"
+              />
+              <button
+                type="submit"
+                className="sm:col-span-3 py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-xl transition-all"
+              >
+                Submit Peer Evaluation Rating
+              </button>
+            </form>
+          </section>
+        )}
+
+        {/* Defense Rubric Assessment Section (Supervisor / Panel Member) */}
+        {(isSupervisor || isCoordinator) && (
+          <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-4">
+            <h3 className="text-base font-semibold text-white flex items-center gap-2">
+              <Award className="w-4 h-4 text-indigo-400" /> Defense Panel Assessment & Rubric Scoring
+            </h3>
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              try {
+                const targetTeam = e.currentTarget.team_id.value;
+                const criteriaId = e.currentTarget.rubric_criteria_id.value;
+                const scoreVal = e.currentTarget.score.value;
+                const commentsVal = e.currentTarget.comments.value;
+                await api.post(`/defense/evaluations`, {
+                  team_id: targetTeam,
+                  panel_id: 1,
+                  rubric_id: 1,
+                  rubric_criteria_id: criteriaId,
+                  score: scoreVal,
+                  comments: commentsVal,
+                });
+                setMessage('Defense score recorded successfully!');
+                e.currentTarget.reset();
+              } catch (err: any) {
+                setMessage(err.response?.data?.message || 'Defense scoring failed');
+              }
+            }} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <select
+                name="team_id"
+                required
+                className="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500"
+              >
+                <option value="">Select Team for Defense Evaluation...</option>
+                {teams.map((t) => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+              </select>
+
+              <select
+                name="rubric_criteria_id"
+                required
+                className="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500"
+              >
+                <option value="">Select Rubric Criteria...</option>
+                <option value="1">Technical Architecture & Code Quality (30 pts)</option>
+                <option value="2">System Demonstration & Functionality (35 pts)</option>
+                <option value="3">Presentation & Technical Q&A Defense (35 pts)</option>
+              </select>
+
+              <input
+                name="score"
+                type="number"
+                min="0"
+                max="35"
+                required
+                placeholder="Score (Pts)"
+                className="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500"
+              />
+
+              <input
+                name="comments"
+                type="text"
+                placeholder="Evaluator feedback comments..."
+                className="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500"
+              />
+
+              <button
+                type="submit"
+                className="sm:col-span-2 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm rounded-xl transition-all"
+              >
+                Record Defense Evaluation Score
+              </button>
+            </form>
+          </section>
         )}
       </main>
     </div>

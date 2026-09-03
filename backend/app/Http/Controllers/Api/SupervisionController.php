@@ -76,6 +76,10 @@ class SupervisionController extends Controller
             'current_team_count' => Supervision::where('supervisor_id', $supervisor->id)->count()
         ]);
 
+        // Dispatch queued email to supervisor & team leader
+        \Illuminate\Support\Facades\Mail::to($supervisor->email)
+            ->queue(new \App\Mail\SupervisorAssigned($supervision));
+
         return response()->json([
             'message' => "Team assigned to supervisor {$supervisor->name} successfully",
             'supervision' => $supervision->load(['team', 'supervisor'])

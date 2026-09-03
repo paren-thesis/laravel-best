@@ -77,6 +77,14 @@ class TopicController extends Controller
             'reviewed_by_user_id' => $request->user()->id,
         ]);
 
+        // Dispatch queued email notification to team members
+        if ($topic->team && $topic->team->members->isNotEmpty()) {
+            foreach ($topic->team->members as $member) {
+                \Illuminate\Support\Facades\Mail::to($member->email)
+                    ->queue(new \App\Mail\TopicStatusChanged($topic));
+            }
+        }
+
         return response()->json([
             'message' => "Topic marked as {$validated['status']}",
             'topic' => $topic->load('reviewer')
