@@ -7,66 +7,54 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'email' => 'required|email',
-            'password' => 'required',
+            'password' => 'required|string',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $validated['email'])->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials do not match our records.'],
-            ]);
+        if (!$user || !Hash::check($validated['password'], $user->password)) {
+            return response()->json([
+                'message' => 'Invalid email or password credentials.'
+            ], 401);
         }
 
-        // Delete existing tokens for clean single session or issue new Sanctum token
-        $user->tokens()->delete();
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'message' => 'Login successful',
-            'token' => $token,
+            'access_token' => $token,
+            'token_type' => 'Bearer',
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
                 'roles' => $user->getRoleNames(),
-                'permissions' => $user->getAllPermissions()->pluck('name'),
-                'profile' => $user->profile ? [
-                    'index_number' => $user->profile->index_number,
-                    'staff_id' => $user->profile->staff_id,
-                    'phone' => $user->profile->phone,
-                    'course' => $user->profile->course ? $user->profile->course->name : null,
-                ] : null,
-            ],
+                'profile' => $user->profile?->load('course'),
+                'supervisor_profile' => $user->supervisorProfile,
+            ]
         ]);
     }
 
     public function me(Request $request)
     {
-        $user = $request->user();
-        
+        $user = $request->user()->load(['profile.course', 'supervisorProfile']);
+
         return response()->json([
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
                 'roles' => $user->getRoleNames(),
-                'permissions' => $user->getAllPermissions()->pluck('name'),
-                'profile' => $user->profile ? [
-                    'index_number' => $user->profile->index_number,
-                    'staff_id' => $user->profile->staff_id,
-                    'phone' => $user->profile->phone,
-                    'course' => $user->profile->course ? $user->profile->course->name : null,
-                ] : null,
-            ],
+                'profile' => $user->profile,
+                'supervisor_profile' => $user->supervisorProfile,
+            ]
         ]);
     }
 
@@ -75,7 +63,7 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => 'Logged out successfully',
+            'message' => 'Successfully logged out'
         ]);
     }
 }
