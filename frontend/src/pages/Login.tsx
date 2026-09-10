@@ -1,21 +1,44 @@
 import React, { useState } from 'react';
-import { useAuthStore } from '../store/useAuthStore';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { GraduationCap, Lock, Mail, ShieldAlert, KeyRound } from 'lucide-react';
+import { useAuthStore } from '../store/useAuthStore';
+
+const DEMO_ACCOUNTS = [
+  // student1 is seeded into a real team; the bare `student@` account is not,
+  // which makes it a poor demo of the student flow.
+  { email: 'student1@htu.edu.gh', label: '🎓 Student', className: 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border-emerald-500/20' },
+  { email: 'coordinator@htu.edu.gh', label: '📋 Coordinator', className: 'bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border-indigo-500/20' },
+  { email: 'supervisor1@htu.edu.gh', label: '👨‍🏫 Supervisor', className: 'bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 border-amber-500/20' },
+  { email: 'admin@htu.edu.gh', label: '🛡️ Admin', className: 'bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border-rose-500/20' },
+];
+
+const inputClass =
+  'w-full bg-slate-950/60 border border-slate-800 rounded-xl pl-11 pr-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all';
 
 export const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login, isLoading, error } = useAuthStore();
+  const { login, isLoading, error, token } = useAuthStore();
+  const navigate = useNavigate();
+
+  if (token) {
+    return <Navigate to="/" replace />;
+  }
+
+  const signIn = async (withEmail: string, withPassword: string) => {
+    const ok = await login(withEmail, withPassword);
+    if (ok) navigate('/', { replace: true });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await login(email, password);
+    await signIn(email, password);
   };
 
   const handleQuickLogin = async (demoEmail: string) => {
     setEmail(demoEmail);
     setPassword('password');
-    await login(demoEmail, 'password');
+    await signIn(demoEmail, 'password');
   };
 
   return (
@@ -49,7 +72,7 @@ export const Login: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@htu.edu.gh"
-                className="w-full bg-slate-950/60 border border-slate-800 rounded-xl pl-11 pr-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                className={inputClass}
               />
             </div>
           </div>
@@ -66,7 +89,7 @@ export const Login: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-slate-950/60 border border-slate-800 rounded-xl pl-11 pr-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                className={inputClass}
               />
             </div>
           </div>
@@ -91,30 +114,17 @@ export const Login: React.FC = () => {
             Quick Test Accounts (Click to Demo)
           </p>
           <div className="grid grid-cols-2 gap-2 text-xs font-medium">
-            <button
-              onClick={() => handleQuickLogin('student@htu.edu.gh')}
-              className="px-3 py-2 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20 transition-all"
-            >
-              🎓 Student
-            </button>
-            <button
-              onClick={() => handleQuickLogin('coordinator@htu.edu.gh')}
-              className="px-3 py-2 rounded-lg bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border border-indigo-500/20 transition-all"
-            >
-              📋 Coordinator
-            </button>
-            <button
-              onClick={() => handleQuickLogin('supervisor@htu.edu.gh')}
-              className="px-3 py-2 rounded-lg bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 border border-amber-500/20 transition-all"
-            >
-              👨‍🏫 Supervisor
-            </button>
-            <button
-              onClick={() => handleQuickLogin('admin@htu.edu.gh')}
-              className="px-3 py-2 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 transition-all"
-            >
-              🛡️ Admin
-            </button>
+            {DEMO_ACCOUNTS.map((account) => (
+              <button
+                key={account.email}
+                type="button"
+                disabled={isLoading}
+                onClick={() => handleQuickLogin(account.email)}
+                className={`px-3 py-2 rounded-lg border disabled:opacity-50 transition-all ${account.className}`}
+              >
+                {account.label}
+              </button>
+            ))}
           </div>
         </div>
       </div>

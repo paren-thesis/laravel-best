@@ -1,33 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import { Award, ClipboardX } from 'lucide-react';
-import api from '../api/axios';
-
-interface DefenseScoringFormProps {
-  teams: any[];
-  panels: any[];
-  rubrics: any[];
-  setMessage: (msg: string) => void;
-}
+import { errorMessage, useDefenseConfig, useSubmitDefenseEvaluation, useTeams } from '../api/queries';
+import { useUiStore } from '../store/useUiStore';
+import { SectionNotice } from './SectionNotice';
 
 interface CriterionEntry {
   score: string;
   comments: string;
 }
 
-export const DefenseScoringForm: React.FC<DefenseScoringFormProps> = ({
-  teams,
-  panels,
-  rubrics,
-  setMessage,
-}) => {
+const inputClass =
+  'bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500';
+
+export const DefenseScoringForm: React.FC = () => {
+  const { data: teams = [] } = useTeams();
+  const { data: defense, isLoading } = useDefenseConfig();
+  const setMessage = useUiStore((state) => state.setMessage);
+  const submitEvaluation = useSubmitDefenseEvaluation();
+
   const [teamId, setTeamId] = useState('');
   const [panelId, setPanelId] = useState('');
   const [rubricId, setRubricId] = useState('');
   const [entries, setEntries] = useState<Record<number, CriterionEntry>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Default to the first panel and rubric the API returned, rather than
-  // assuming id 1 exists.
+  const panels = defense?.panels ?? [];
+  const rubrics = defense?.rubrics ?? [];
+
+  // Default to whatever the API returned rather than assuming id 1 exists.
   useEffect(() => {
     if (!panelId && panels.length > 0) setPanelId(String(panels[0].id));
   }, [panels, panelId]);
@@ -37,7 +36,7 @@ export const DefenseScoringForm: React.FC<DefenseScoringFormProps> = ({
   }, [rubrics, rubricId]);
 
   const activeRubric = rubrics.find((r) => String(r.id) === rubricId) ?? rubrics[0];
-  const criteria: any[] = activeRubric?.criteria ?? [];
+  const criteria = activeRubric?.criteria ?? [];
 
   const updateEntry = (criterionId: number, field: keyof CriterionEntry, value: string) => {
     setEntries((prev) => {
@@ -46,54 +45,54 @@ export const DefenseScoringForm: React.FC<DefenseScoringFormProps> = ({
     });
   };
 
-  const runningTotal = criteria.reduce(
-    (sum, c) => sum + (Number(entries[c.id]?.score) || 0),
-    0,
-  );
+  const runningTotal = criteria.reduce((sum, c) => sum + (Number(entries[c.id]?.score) || 0), 0);
   const maxTotal = criteria.reduce((sum, c) => sum + (Number(c.max_points) || 0), 0);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      // The API takes every criterion score in one request, not one at a time.
-      await api.post('/defense/evaluations', {
+    if (!activeRubric) return;
+
+    // The API takes every criterion score in one request, not one at a time.
+    submitEvaluation.mutate(
+      {
         team_id: Number(teamId),
         panel_id: Number(panelId),
-        rubric_id: Number(activeRubric.id),
+        rubric_id: activeRubric.id,
         scores: criteria.map((c) => ({
           criteria_id: c.id,
           score: Number(entries[c.id]?.score ?? 0),
           comments: entries[c.id]?.comments || null,
         })),
-      });
-      setMessage(`Defense evaluation recorded (${runningTotal}/${maxTotal})`);
-      setTeamId('');
-      setEntries({});
-    } catch (err: any) {
-      setMessage(err.response?.data?.message || 'Defense scoring failed');
-    } finally {
-      setIsSubmitting(false);
-    }
+      },
+      {
+        onSuccess: () => {
+          setMessage(`Defense evaluation recorded (${runningTotal}/${maxTotal})`);
+          setTeamId('');
+          setEntries({});
+        },
+        onError: (error) => setMessage(errorMessage(error, 'Defense scoring failed')),
+      },
+    );
   };
 
-  const inputClass =
-    'bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500';
+  if (isLoading) {
+    return (
+      <SectionNotice
+        title="Defense Panel Assessment & Rubric Scoring"
+        titleIcon={Award}
+        message="Loading panels and rubrics..."
+      />
+    );
+  }
 
   if (panels.length === 0 || criteria.length === 0) {
     return (
-      <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-3">
-        <h3 className="text-base font-semibold text-white flex items-center gap-2">
-          <Award className="w-4 h-4 text-indigo-400" /> Defense Panel Assessment &amp; Rubric Scoring
-        </h3>
-        <div className="flex items-start gap-3 text-sm text-slate-400">
-          <ClipboardX className="w-5 h-5 shrink-0 text-slate-500 mt-0.5" />
-          <p>
-            No defense panel or active rubric has been configured yet. A coordinator needs to create one before scoring
-            can begin.
-          </p>
-        </div>
-      </section>
+      <SectionNotice
+        title="Defense Panel Assessment & Rubric Scoring"
+        titleIcon={Award}
+        noticeIcon={ClipboardX}
+        message="No defense panel or active rubric has been configured yet. A coordinator needs to create one before scoring can begin."
+      />
     );
   }
 
@@ -107,8 +106,12 @@ export const DefenseScoringForm: React.FC<DefenseScoringFormProps> = ({
           <p className="text-xs text-slate-400 mt-1">{activeRubric.title}</p>
         </div>
         <div className="text-right">
-          <div className="text-xs uppercase tracking-wider text-slate-500 font-semibold">Running total</div>
-          <div className="text-lg font-bold text-indigo-400 tabular-nums">{runningTotal} / {maxTotal}</div>
+          <div className="text-xs uppercase tracking-wider text-slate-500 font-semibold">
+            Running total
+          </div>
+          <div className="text-lg font-bold text-indigo-400 tabular-nums">
+            {runningTotal} / {maxTotal}
+          </div>
         </div>
       </div>
 
@@ -130,7 +133,10 @@ export const DefenseScoringForm: React.FC<DefenseScoringFormProps> = ({
           {rubrics.length > 1 && (
             <select
               value={rubricId}
-              onChange={(e) => { setRubricId(e.target.value); setEntries({}); }}
+              onChange={(e) => {
+                setRubricId(e.target.value);
+                setEntries({});
+              }}
               className={`${inputClass} sm:col-span-2`}
             >
               {rubrics.map((r) => (
@@ -170,10 +176,10 @@ export const DefenseScoringForm: React.FC<DefenseScoringFormProps> = ({
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={submitEvaluation.isPending}
           className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-medium text-sm rounded-xl transition-all"
         >
-          {isSubmitting ? 'Recording...' : 'Record Defense Evaluation Score'}
+          {submitEvaluation.isPending ? 'Recording...' : 'Record Defense Evaluation Score'}
         </button>
       </form>
     </section>

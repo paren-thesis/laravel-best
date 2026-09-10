@@ -1,70 +1,69 @@
 import React, { useState } from 'react';
 import { Send, UsersRound } from 'lucide-react';
-import api from '../api/axios';
+import { errorMessage, useCreateTopic } from '../api/queries';
+import { useMyTeam } from '../hooks/useMyTeam';
+import { useUiStore } from '../store/useUiStore';
+import { SectionNotice } from './SectionNotice';
 
-interface ProposalFormProps {
-  team: any | null;
-  onRefresh: () => void;
-  setMessage: (msg: string) => void;
-}
+const inputClass =
+  'w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500';
 
-export const ProposalForm: React.FC<ProposalFormProps> = ({
-  team,
-  onRefresh,
-  setMessage,
-}) => {
-  const [proposalTitle, setProposalTitle] = useState('');
-  const [proposalAbstract, setProposalAbstract] = useState('');
+export const ProposalForm: React.FC = () => {
+  const { team, isLoading } = useMyTeam();
+  const setMessage = useUiStore((state) => state.setMessage);
+  const createTopic = useCreateTopic();
+
+  const [title, setTitle] = useState('');
+  const [abstract, setAbstract] = useState('');
   const [problemStatement, setProblemStatement] = useState('');
   const [proposedSolution, setProposedSolution] = useState('');
   const [techStack, setTechStack] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleProposalSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!team) return;
 
-    setIsSubmitting(true);
-    try {
-      await api.post('/topics', {
+    createTopic.mutate(
+      {
         team_id: team.id,
-        title: proposalTitle,
-        abstract: proposalAbstract,
+        title,
+        abstract,
         problem_statement: problemStatement,
         proposed_solution: proposedSolution,
-        tech_stack: techStack
-          .split(',')
-          .map((tech) => tech.trim())
-          .filter(Boolean),
-      });
-      setMessage('Project proposal submitted successfully!');
-      setProposalTitle('');
-      setProposalAbstract('');
-      setProblemStatement('');
-      setProposedSolution('');
-      setTechStack('');
-      onRefresh();
-    } catch (err: any) {
-      setMessage(err.response?.data?.message || 'Error submitting proposal');
-    } finally {
-      setIsSubmitting(false);
-    }
+        tech_stack: techStack.split(',').map((tech) => tech.trim()).filter(Boolean),
+      },
+      {
+        onSuccess: () => {
+          setMessage('Project proposal submitted successfully!');
+          setTitle('');
+          setAbstract('');
+          setProblemStatement('');
+          setProposedSolution('');
+          setTechStack('');
+        },
+        onError: (error) => setMessage(errorMessage(error, 'Error submitting proposal')),
+      },
+    );
   };
 
-  const inputClass =
-    'w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500';
+  if (isLoading) {
+    return (
+      <SectionNotice
+        title="Submit New Project Proposal"
+        titleIcon={Send}
+        message="Loading your team..."
+      />
+    );
+  }
 
   if (!team) {
     return (
-      <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-3">
-        <h3 className="text-base font-semibold text-white flex items-center gap-2">
-          <Send className="w-4 h-4 text-indigo-400" /> Submit New Project Proposal
-        </h3>
-        <div className="flex items-start gap-3 text-sm text-slate-400">
-          <UsersRound className="w-5 h-5 shrink-0 text-slate-500 mt-0.5" />
-          <p>You are not a member of any project team yet. Join or create a team before submitting a proposal.</p>
-        </div>
-      </section>
+      <SectionNotice
+        title="Submit New Project Proposal"
+        titleIcon={Send}
+        noticeIcon={UsersRound}
+        message="You are not a member of any project team yet. Join or create a team before submitting a proposal."
+      />
     );
   }
 
@@ -78,21 +77,21 @@ export const ProposalForm: React.FC<ProposalFormProps> = ({
           Submitting on behalf of <span className="text-indigo-400 font-medium">{team.name}</span>
         </p>
       </div>
-      <form onSubmit={handleProposalSubmit} className="space-y-3">
+      <form onSubmit={handleSubmit} className="space-y-3">
         <input
           type="text"
           required
           placeholder="Project Title"
-          value={proposalTitle}
-          onChange={(e) => setProposalTitle(e.target.value)}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
           className={inputClass}
         />
         <textarea
           required
           rows={3}
           placeholder="Project Abstract"
-          value={proposalAbstract}
-          onChange={(e) => setProposalAbstract(e.target.value)}
+          value={abstract}
+          onChange={(e) => setAbstract(e.target.value)}
           className={inputClass}
         />
         <textarea
@@ -120,10 +119,10 @@ export const ProposalForm: React.FC<ProposalFormProps> = ({
         />
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={createTopic.isPending}
           className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-medium text-sm rounded-xl transition-all"
         >
-          {isSubmitting ? 'Submitting...' : 'Submit Proposal'}
+          {createTopic.isPending ? 'Submitting...' : 'Submit Proposal'}
         </button>
       </form>
     </section>
