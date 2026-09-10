@@ -13,5 +13,12 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
+    // Docker bind mounts on Windows and macOS do not forward inotify events into
+    // the container, so Vite never sees edits made on the host. Polling is what
+    // makes hot reload work here.
+    watch: {
+      usePolling: true,
+      interval: 300,
+    },
   },
 });

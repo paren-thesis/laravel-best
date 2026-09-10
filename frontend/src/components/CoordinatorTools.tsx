@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Users, FileText, Plus } from 'lucide-react';
+import { Users, FileText, Plus, Loader2 } from 'lucide-react';
 import api from '../api/axios';
+import { downloadFile, readApiError } from '../api/download';
 
 interface CoordinatorToolsProps {
   teams: any[];
@@ -17,6 +18,8 @@ export const CoordinatorTools: React.FC<CoordinatorToolsProps> = ({
 }) => {
   const [selectedTeamForAssign, setSelectedTeamForAssign] = useState('');
   const [selectedSupervisor, setSelectedSupervisor] = useState('');
+  const [isAssigning, setIsAssigning] = useState(false);
+  const [exporting, setExporting] = useState<'csv' | 'pdf' | null>(null);
 
   const handleAutoGroup = async () => {
     try {
@@ -28,17 +31,34 @@ export const CoordinatorTools: React.FC<CoordinatorToolsProps> = ({
     }
   };
 
+  const handleExport = async (format: 'csv' | 'pdf') => {
+    setExporting(format);
+    try {
+      await downloadFile(`/exports/broadsheet/${format}`, `htu_fyp_broadsheet.${format}`);
+      setMessage(`Broadsheet downloaded as ${format.toUpperCase()}`);
+    } catch (err: any) {
+      setMessage(await readApiError(err, `${format.toUpperCase()} export failed`));
+    } finally {
+      setExporting(null);
+    }
+  };
+
   const handleAssignSupervisor = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsAssigning(true);
     try {
-      await api.post('/supervisions/assign', {
+      const res = await api.post('/supervisions/assign', {
         team_id: selectedTeamForAssign,
         supervisor_id: selectedSupervisor,
       });
-      setMessage('Supervisor allocated successfully');
+      setMessage(res.data.message || 'Supervisor allocated successfully');
+      setSelectedTeamForAssign('');
+      setSelectedSupervisor('');
       onRefresh();
     } catch (err: any) {
       setMessage(err.response?.data?.message || 'Allocation failed');
+    } finally {
+      setIsAssigning(false);
     }
   };
 
@@ -49,22 +69,26 @@ export const CoordinatorTools: React.FC<CoordinatorToolsProps> = ({
           <Users className="w-5 h-5 text-indigo-400" /> Coordinator Management Tools
         </h3>
         <div className="flex items-center gap-3">
-          <a
-            href="http://localhost:8000/api/v1/exports/broadsheet/csv"
-            target="_blank"
-            rel="noreferrer"
-            className="px-3.5 py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 font-medium text-xs rounded-xl transition-all flex items-center gap-1.5"
+          <button
+            onClick={() => handleExport('csv')}
+            disabled={exporting !== null}
+            className="px-3.5 py-2 bg-emerald-600/20 hover:bg-emerald-600/30 disabled:opacity-50 text-emerald-300 border border-emerald-500/30 font-medium text-xs rounded-xl transition-all flex items-center gap-1.5"
           >
-            <FileText className="w-4 h-4" /> Export Broadsheet (CSV)
-          </a>
-          <a
-            href="http://localhost:8000/api/v1/exports/broadsheet/pdf"
-            target="_blank"
-            rel="noreferrer"
-            className="px-3.5 py-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 font-medium text-xs rounded-xl transition-all flex items-center gap-1.5"
+            {exporting === 'csv'
+              ? <Loader2 className="w-4 h-4 animate-spin" />
+              : <FileText className="w-4 h-4" />}
+            Export Broadsheet (CSV)
+          </button>
+          <button
+            onClick={() => handleExport('pdf')}
+            disabled={exporting !== null}
+            className="px-3.5 py-2 bg-rose-600/20 hover:bg-rose-600/30 disabled:opacity-50 text-rose-300 border border-rose-500/30 font-medium text-xs rounded-xl transition-all flex items-center gap-1.5"
           >
-            <FileText className="w-4 h-4" /> Export Broadsheet (PDF)
-          </a>
+            {exporting === 'pdf'
+              ? <Loader2 className="w-4 h-4 animate-spin" />
+              : <FileText className="w-4 h-4" />}
+            Export Broadsheet (PDF)
+          </button>
           <button
             onClick={handleAutoGroup}
             className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-xl shadow-lg shadow-indigo-600/20 transition-all flex items-center gap-1.5"
@@ -98,17 +122,19 @@ export const CoordinatorTools: React.FC<CoordinatorToolsProps> = ({
           >
             <option value="">Select Supervisor...</option>
             {supervisors.map((s) => (
-              <option key={s.id} value={s.user_id || s.user?.id}>
-                {s.user?.name || s.name || `Supervisor #${s.id}`} ({s.current_team_count ?? s.assigned_count ?? 0}/{s.max_team_capacity ?? s.capacity ?? 5} teams)
+              <option key={s.id} value={s.id} disabled={s.assigned_count >= s.capacity}>
+                {s.name} ({s.assigned_count}/{s.capacity} teams)
+                {s.assigned_count >= s.capacity ? ' — full' : ''}
               </option>
             ))}
           </select>
 
           <button
             type="submit"
-            className="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm rounded-xl transition-all"
+            disabled={isAssigning}
+            className="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-medium text-sm rounded-xl transition-all"
           >
-            Assign Supervisor
+            {isAssigning ? 'Assigning...' : 'Assign Supervisor'}
           </button>
         </form>
       </div>
