@@ -1,5 +1,6 @@
 import React from 'react';
 import { Crown, UsersRound } from 'lucide-react';
+import { CreateTeamForm } from '../components/CreateTeamForm';
 import { DeliverablesForm } from '../components/DeliverablesForm';
 import { PeerEvaluationForm } from '../components/PeerEvaluationForm';
 import { SectionNotice } from '../components/SectionNotice';
@@ -14,13 +15,7 @@ export const MyTeam: React.FC = () => {
         <SectionNotice title="My Project Team" titleIcon={UsersRound} message="Loading your team..." />
       )}
 
-      {!isLoading && !team && (
-        <SectionNotice
-          title="My Project Team"
-          titleIcon={UsersRound}
-          message="You are not a member of any project team yet. Once a coordinator places you in a team, or you join one with an invite, your team details appear here."
-        />
-      )}
+      {!isLoading && !team && <CreateTeamForm />}
 
       {team && (
         <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-5">

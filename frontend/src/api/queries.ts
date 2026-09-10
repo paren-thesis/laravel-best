@@ -68,6 +68,19 @@ export const useReviewTopic = () => {
   });
 };
 
+interface CreateTeamInput {
+  name: string;
+  course_id: number;
+}
+
+export const useCreateTeam = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: CreateTeamInput) => (await api.post('/teams', input)).data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.teams }),
+  });
+};
+
 export const useAutoGroup = () => {
   const qc = useQueryClient();
   return useMutation({
