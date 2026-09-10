@@ -26,6 +26,8 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     // Listen for real-time WebSocket events from Soketi
+    if (!echo) return;
+
     const channel = echo.channel('fyp-notifications');
 
     channel.listen('.topic.updated', (e: any) => {
@@ -39,7 +41,7 @@ export const App: React.FC = () => {
     });
 
     return () => {
-      echo.leaveChannel('fyp-notifications');
+      echo?.leaveChannel('fyp-notifications');
     };
   }, []);
 
