@@ -21,6 +21,8 @@ export const App: React.FC = () => {
   const [topics, setTopics] = useState<any[]>([]);
   const [teams, setTeams] = useState<any[]>([]);
   const [supervisors, setSupervisors] = useState<any[]>([]);
+  const [panels, setPanels] = useState<any[]>([]);
+  const [rubrics, setRubrics] = useState<any[]>([]);
   const [message, setMessage] = useState('');
   const [liveNotifications, setLiveNotifications] = useState<any[]>([]);
 
@@ -58,18 +60,19 @@ export const App: React.FC = () => {
   }, [user]);
 
   const loadDashboardData = async () => {
-    try {
-      const [topicsRes, teamsRes, supervisionsRes] = await Promise.allSettled([
-        api.get('/topics'),
-        api.get('/teams'),
-        api.get('/supervisions'),
-      ]);
+    const [topicsRes, teamsRes, supervisionsRes, defenseRes] = await Promise.allSettled([
+      api.get('/topics'),
+      api.get('/teams'),
+      api.get('/supervisions'),
+      api.get('/defense/panels'),
+    ]);
 
-      if (topicsRes.status === 'fulfilled') setTopics(topicsRes.value.data.topics);
-      if (teamsRes.status === 'fulfilled') setTeams(teamsRes.value.data.teams);
-      if (supervisionsRes.status === 'fulfilled') setSupervisors(supervisionsRes.value.data.supervisors);
-    } catch (e) {
-      console.error(e);
+    if (topicsRes.status === 'fulfilled') setTopics(topicsRes.value.data.topics ?? []);
+    if (teamsRes.status === 'fulfilled') setTeams(teamsRes.value.data.teams ?? []);
+    if (supervisionsRes.status === 'fulfilled') setSupervisors(supervisionsRes.value.data.supervisors ?? []);
+    if (defenseRes.status === 'fulfilled') {
+      setPanels(defenseRes.value.data.panels ?? []);
+      setRubrics(defenseRes.value.data.rubrics ?? []);
     }
   };
 
@@ -80,6 +83,11 @@ export const App: React.FC = () => {
   const isStudent = user.roles.includes('student');
   const isCoordinator = user.roles.includes('coordinator') || user.roles.includes('admin');
   const isSupervisor = user.roles.includes('supervisor');
+
+  // Resolved once here rather than guessed inside each form. When a student
+  // belongs to no team this stays null and the forms disable themselves,
+  // instead of silently falling back to somebody else's team.
+  const myTeam = teams.find((t: any) => t.members?.some((m: any) => m.id === user.id)) ?? null;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">
@@ -115,14 +123,12 @@ export const App: React.FC = () => {
         {isStudent && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <ProposalForm
-              teams={teams}
-              user={user}
+              team={myTeam}
               onRefresh={loadDashboardData}
               setMessage={setMessage}
             />
             <DeliverablesForm
-              teams={teams}
-              user={user}
+              team={myTeam}
               onRefresh={loadDashboardData}
               setMessage={setMessage}
             />
@@ -131,7 +137,7 @@ export const App: React.FC = () => {
 
         {isStudent && (
           <PeerEvaluationForm
-            teams={teams}
+            team={myTeam}
             user={user}
             setMessage={setMessage}
           />
@@ -140,6 +146,8 @@ export const App: React.FC = () => {
         {(isSupervisor || isCoordinator) && (
           <DefenseScoringForm
             teams={teams}
+            panels={panels}
+            rubrics={rubrics}
             setMessage={setMessage}
           />
         )}
