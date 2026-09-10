@@ -1,5 +1,13 @@
 import type { LucideIcon } from 'lucide-react';
-import { Award, FileDown, FileText, LayoutDashboard, UserCheck, UsersRound } from 'lucide-react';
+import {
+  Award,
+  ClipboardList,
+  FileDown,
+  FileText,
+  LayoutDashboard,
+  UserCheck,
+  UsersRound,
+} from 'lucide-react';
 import type { RoleName } from '../types';
 
 export interface NavItem {
@@ -21,6 +29,7 @@ export const NAV_ITEMS: NavItem[] = [
     icon: Award,
     roles: ['supervisor', 'coordinator', 'admin', 'panel_member'],
   },
+  { to: '/rubrics', label: 'Rubrics', icon: ClipboardList, roles: ['coordinator', 'admin'] },
   { to: '/reports', label: 'Reports', icon: FileDown, roles: ['coordinator', 'admin', 'supervisor'] },
 ];
 

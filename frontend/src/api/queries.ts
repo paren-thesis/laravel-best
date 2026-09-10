@@ -133,6 +133,20 @@ export const useSubmitPeerEvaluation = () =>
       (await api.post('/teams/peer-evaluations', input)).data,
   });
 
+interface CreateRubricInput {
+  title: string;
+  criteria: Array<{ title: string; max_points: number }>;
+}
+
+export const useCreateRubric = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: CreateRubricInput) =>
+      (await api.post('/defense/rubrics', input)).data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.defense }),
+  });
+};
+
 interface DefenseEvaluationInput {
   team_id: number;
   panel_id: number;

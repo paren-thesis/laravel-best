@@ -6,6 +6,7 @@ import { Overview } from './pages/Overview';
 import { Proposals } from './pages/Proposals';
 import { MyTeam } from './pages/MyTeam';
 import { Supervision } from './pages/Supervision';
+import { Rubrics } from './pages/Rubrics';
 import { Defense } from './pages/Defense';
 import { Reports } from './pages/Reports';
 import { NotFound } from './pages/NotFound';
@@ -30,6 +31,7 @@ export const App: React.FC = () => (
 
         <Route element={<RequireAuth roles={['coordinator', 'admin']} />}>
           <Route path="supervision" element={<Supervision />} />
+          <Route path="rubrics" element={<Rubrics />} />
         </Route>
 
         <Route element={<RequireAuth roles={['supervisor', 'coordinator', 'admin', 'panel_member']} />}>
