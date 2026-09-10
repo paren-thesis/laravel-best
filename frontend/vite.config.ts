@@ -28,5 +28,8 @@ export default defineConfig({
     globals: false,
     css: false,
     restoreMocks: true,
+    // Vitest's default glob would also collect e2e/*.spec.ts, which are
+    // Playwright tests and cannot run under Vitest.
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
   },
 });
