@@ -10,7 +10,7 @@ import {
 import { useUiStore } from '../store/useUiStore';
 
 const controlClass =
-  'bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500';
+  'bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 min-h-11 text-sm text-slate-200 focus:outline-none focus:border-indigo-500';
 
 export const SupervisorAllocation: React.FC = () => {
   const { data: teams = [] } = useTeams();
@@ -58,7 +58,7 @@ export const SupervisorAllocation: React.FC = () => {
         <button
           onClick={handleAutoGroup}
           disabled={autoGroup.isPending}
-          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-medium text-xs rounded-xl shadow-lg shadow-indigo-600/20 transition-all flex items-center gap-1.5"
+          className="px-4 py-2 min-h-11 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-medium text-xs rounded-xl shadow-lg shadow-indigo-600/20 transition-all flex items-center gap-1.5"
         >
           <Plus className="w-4 h-4" />
           {autoGroup.isPending ? 'Grouping...' : 'Run Auto-Grouping Tool'}
@@ -95,7 +95,7 @@ export const SupervisorAllocation: React.FC = () => {
           <button
             type="submit"
             disabled={assignSupervisor.isPending}
-            className="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-medium text-sm rounded-xl transition-all flex items-center justify-center gap-1.5"
+            className="py-2.5 px-4 min-h-11 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-medium text-sm rounded-xl transition-all flex items-center justify-center gap-1.5"
           >
             <UserCheck className="w-4 h-4" />
             {assignSupervisor.isPending ? 'Assigning...' : 'Assign Supervisor'}

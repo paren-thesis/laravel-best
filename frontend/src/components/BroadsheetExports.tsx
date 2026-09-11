@@ -37,7 +37,7 @@ export const BroadsheetExports: React.FC = () => {
           <button
             onClick={() => handleExport('csv')}
             disabled={exporting !== null}
-            className="px-4 py-2.5 bg-emerald-600/20 hover:bg-emerald-600/30 disabled:opacity-50 text-emerald-300 border border-emerald-500/30 font-medium text-sm rounded-xl transition-all flex items-center gap-2"
+            className="px-4 py-2.5 min-h-11 bg-emerald-600/20 hover:bg-emerald-600/30 disabled:opacity-50 text-emerald-300 border border-emerald-500/30 font-medium text-sm rounded-xl transition-all flex items-center gap-2"
           >
             {exporting === 'csv' ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -50,7 +50,7 @@ export const BroadsheetExports: React.FC = () => {
           <button
             onClick={() => handleExport('pdf')}
             disabled={exporting !== null}
-            className="px-4 py-2.5 bg-rose-600/20 hover:bg-rose-600/30 disabled:opacity-50 text-rose-300 border border-rose-500/30 font-medium text-sm rounded-xl transition-all flex items-center gap-2"
+            className="px-4 py-2.5 min-h-11 bg-rose-600/20 hover:bg-rose-600/30 disabled:opacity-50 text-rose-300 border border-rose-500/30 font-medium text-sm rounded-xl transition-all flex items-center gap-2"
           >
             {exporting === 'pdf' ? (
               <Loader2 className="w-4 h-4 animate-spin" />

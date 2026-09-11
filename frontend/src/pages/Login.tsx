@@ -97,7 +97,7 @@ export const Login: React.FC = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-medium rounded-xl shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-2"
+            className="w-full py-3.5 px-4 min-h-11 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-medium rounded-xl shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-2"
           >
             {isLoading ? (
               <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -120,7 +120,7 @@ export const Login: React.FC = () => {
                 type="button"
                 disabled={isLoading}
                 onClick={() => handleQuickLogin(account.email)}
-                className={`px-3 py-2 rounded-lg border disabled:opacity-50 transition-all ${account.className}`}
+                className={`px-3 py-2 min-h-11 rounded-lg border disabled:opacity-50 transition-all ${account.className}`}
               >
                 {account.label}
               </button>

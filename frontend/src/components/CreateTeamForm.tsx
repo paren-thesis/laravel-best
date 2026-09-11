@@ -6,7 +6,7 @@ import { useUiStore } from '../store/useUiStore';
 import { SectionNotice } from './SectionNotice';
 
 const inputClass =
-  'w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500';
+  'w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 min-h-11 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500';
 
 export const CreateTeamForm: React.FC = () => {
   const user = useAuthStore((state) => state.user);
@@ -77,7 +77,7 @@ export const CreateTeamForm: React.FC = () => {
         <button
           type="submit"
           disabled={createTeam.isPending || name.trim().length === 0}
-          className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-medium text-sm rounded-xl transition-all"
+          className="w-full py-2.5 px-4 min-h-11 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-medium text-sm rounded-xl transition-all"
         >
           {createTeam.isPending ? 'Creating team...' : 'Create Team'}
         </button>

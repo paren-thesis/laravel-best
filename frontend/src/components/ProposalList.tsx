@@ -96,14 +96,14 @@ export const ProposalList: React.FC = () => {
                       <button
                         onClick={() => handleReview(t.id, 'approved')}
                         disabled={reviewTopic.isPending}
-                        className="flex-1 py-2 px-3 bg-emerald-600/20 hover:bg-emerald-600/30 disabled:opacity-50 text-emerald-400 text-xs font-medium rounded-xl border border-emerald-500/30 flex items-center justify-center gap-1.5 transition-all"
+                        className="flex-1 py-2 px-3 min-h-11 bg-emerald-600/20 hover:bg-emerald-600/30 disabled:opacity-50 text-emerald-400 text-xs font-medium rounded-xl border border-emerald-500/30 flex items-center justify-center gap-1.5 transition-all"
                       >
                         <CheckCircle2 className="w-4 h-4" /> Approve
                       </button>
                       <button
                         onClick={() => handleReview(t.id, 'rejected')}
                         disabled={reviewTopic.isPending}
-                        className="flex-1 py-2 px-3 bg-rose-600/20 hover:bg-rose-600/30 disabled:opacity-50 text-rose-400 text-xs font-medium rounded-xl border border-rose-500/30 flex items-center justify-center gap-1.5 transition-all"
+                        className="flex-1 py-2 px-3 min-h-11 bg-rose-600/20 hover:bg-rose-600/30 disabled:opacity-50 text-rose-400 text-xs font-medium rounded-xl border border-rose-500/30 flex items-center justify-center gap-1.5 transition-all"
                       >
                         <XCircle className="w-4 h-4" /> Reject
                       </button>

@@ -9,7 +9,7 @@ interface CriterionDraft {
 }
 
 const inputClass =
-  'bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500';
+  'bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 min-h-11 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500';
 
 const emptyCriterion = (): CriterionDraft => ({ title: '', maxPoints: '' });
 
@@ -189,7 +189,7 @@ export const RubricManager: React.FC = () => {
                   onClick={() => removeCriterion(index)}
                   disabled={drafts.length <= 1}
                   title="Remove criterion"
-                  className="p-2.5 rounded-xl bg-slate-800 hover:bg-rose-600/20 hover:text-rose-400 disabled:opacity-30 disabled:hover:bg-slate-800 disabled:hover:text-slate-400 text-slate-400 transition-all"
+                  className="h-11 w-11 flex items-center justify-center rounded-xl bg-slate-800 hover:bg-rose-600/20 hover:text-rose-400 disabled:opacity-30 disabled:hover:bg-slate-800 disabled:hover:text-slate-400 text-slate-400 transition-all"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -201,7 +201,7 @@ export const RubricManager: React.FC = () => {
             <button
               type="button"
               onClick={addCriterion}
-              className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs rounded-xl transition-all flex items-center gap-1.5"
+              className="px-3.5 py-2 min-h-11 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs rounded-xl transition-all flex items-center gap-1.5"
             >
               <Plus className="w-4 h-4" /> Add criterion
             </button>
@@ -214,7 +214,7 @@ export const RubricManager: React.FC = () => {
           <button
             type="submit"
             disabled={createRubric.isPending || !isValid}
-            className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-medium text-sm rounded-xl transition-all"
+            className="w-full py-2.5 px-4 min-h-11 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-medium text-sm rounded-xl transition-all"
           >
             {createRubric.isPending ? 'Creating rubric...' : 'Create Rubric'}
           </button>

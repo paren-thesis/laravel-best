@@ -85,7 +85,7 @@ export const Overview: React.FC = () => {
           </span>
           <Link
             to="/proposals"
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-xl transition-all"
+            className="px-4 py-2 min-h-11 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-xl transition-all"
           >
             Go to review queue
           </Link>

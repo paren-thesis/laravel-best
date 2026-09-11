@@ -13,7 +13,7 @@ export const NotFound: React.FC = () => (
     </div>
     <Link
       to="/"
-      className="inline-block px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-xl transition-all"
+      className="inline-block px-4 py-2 min-h-11 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-xl transition-all"
     >
       Back to overview
     </Link>

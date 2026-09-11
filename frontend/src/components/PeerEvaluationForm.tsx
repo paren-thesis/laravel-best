@@ -7,7 +7,7 @@ import { useUiStore } from '../store/useUiStore';
 import { SectionNotice } from './SectionNotice';
 
 const inputClass =
-  'bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500';
+  'bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 min-h-11 text-sm text-slate-200 focus:outline-none focus:border-indigo-500';
 
 export const PeerEvaluationForm: React.FC = () => {
   const { team, isLoading } = useMyTeam();
@@ -114,7 +114,7 @@ export const PeerEvaluationForm: React.FC = () => {
         <button
           type="submit"
           disabled={submitEvaluation.isPending}
-          className="sm:col-span-3 py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-medium text-sm rounded-xl transition-all"
+          className="sm:col-span-3 py-2.5 px-4 min-h-11 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-medium text-sm rounded-xl transition-all"
         >
           {submitEvaluation.isPending ? 'Submitting...' : 'Submit Peer Evaluation Rating'}
         </button>
