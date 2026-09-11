@@ -31,7 +31,11 @@ test.describe('Authentication', () => {
     await page.getByPlaceholder('••••••••').fill('definitely-not-the-password');
     await page.getByRole('button', { name: /Sign In to Portal/ }).click();
 
-    await expect(page.getByText(/Invalid email or password/i)).toBeVisible();
+    // Rejecting a password costs the same bcrypt work as accepting one, so this
+    // is as slow as a successful sign-in and needs the same allowance.
+    await expect(page.getByText(/Invalid email or password/i)).toBeVisible({
+      timeout: 90_000,
+    });
     await expect(page).toHaveURL(/\/login$/);
   });
 
