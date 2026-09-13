@@ -31,6 +31,12 @@ class TeamController extends Controller
             'course_id' => 'required|exists:courses,id',
         ]);
 
+        if ($request->user()->teams()->exists()) {
+            return response()->json([
+                'message' => 'You are already a member of a project team.'
+            ], 422);
+        }
+
         $currentYear = AcademicYear::where('is_current', true)->firstOrFail();
 
         $team = DB::transaction(function () use ($validated, $currentYear, $request) {
