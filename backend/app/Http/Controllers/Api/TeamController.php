@@ -163,4 +163,46 @@ class TeamController extends Controller
             'evaluation' => $evaluation
         ]);
     }
+
+    public function joinByInviteCode(Request $request)
+    {
+        $validated = $request->validate([
+            'invite_code' => 'required|string|max:10',
+        ]);
+
+        $user = $request->user();
+
+        if ($user->teams()->exists()) {
+            return response()->json([
+                'message' => 'You are already a member of a project team.'
+            ], 422);
+        }
+
+        $code = strtoupper(trim($validated['invite_code']));
+        $team = Team::with('members')->where('invite_code', $code)->first();
+
+        if (!$team) {
+            return response()->json([
+                'message' => 'Invalid team invite code.'
+            ], 404);
+        }
+
+        $maxMembers = $team->max_members ?? 4;
+        if ($team->members->count() >= $maxMembers) {
+            return response()->json([
+                'message' => 'This team has reached its maximum member capacity.'
+            ], 422);
+        }
+
+        TeamMember::create([
+            'team_id' => $team->id,
+            'user_id' => $user->id,
+            'role_in_team' => 'member',
+        ]);
+
+        return response()->json([
+            'message' => 'Successfully joined the project team.',
+            'team' => $team->fresh(['members', 'course', 'approvedTopic', 'supervision.supervisor', 'softwareDeliverable'])
+        ]);
+    }
 }

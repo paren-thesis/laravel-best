@@ -28,6 +28,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     // Teams & Auto Grouping
     Route::get('/teams', [TeamController::class, 'index']);
     Route::post('/teams', [TeamController::class, 'store']);
+    Route::post('/teams/join', [TeamController::class, 'joinByInviteCode'])->middleware('role:student');
     Route::post('/teams/auto-group', [TeamController::class, 'autoGroup'])->middleware('role:coordinator|admin');
     Route::post('/teams/peer-evaluations', [TeamController::class, 'submitPeerEvaluation'])->middleware('role:student');
 
