@@ -10,8 +10,8 @@
 The system is architected as a decoupled **Single Page Application (SPA)** powered by a containerized microservices stack:
 
 - **Backend API:** Laravel 11 (PHP 8.3) with Sanctum Token Authentication & Spatie RBAC.
-- **Frontend SPA:** React 18 + TypeScript + Vite, styled with Tailwind CSS & Lucide Icons.
-- **Database:** MySQL 8.0 relational database with 11 domain tables.
+- **Frontend SPA:** React 18 + TypeScript + Vite, styled with Tailwind CSS, Lucide Icons, React Router v6 & TanStack Query (React Query).
+- **Database:** MySQL 8.0 relational database with 12 domain tables (including team invite code support).
 - **Caching & Queues:** Redis 7 memory store with Laravel Horizon queue worker.
 - **Real-Time WebSockets:** Soketi WebSocket Server with Laravel Echo event broadcasting.
 - **Email Portal:** Mailpit SMTP mail capturer.
@@ -23,10 +23,10 @@ The system is architected as a decoupled **Single Page Application (SPA)** power
 
 | Role | Primary Responsibilities & Capabilities |
 | :--- | :--- |
-| 🎓 **Student** | Create project teams, submit project proposal topics, upload GitHub & Google Drive deliverables, and perform teammate peer evaluations (1–10 scores with feedback). |
-| 📋 **Coordinator** | Review submitted proposals (Approve/Reject state machine), run student auto-grouping tool, allocate supervisors with capacity tracking, and export multi-format broadsheets. |
+| 🎓 **Student** | Create project teams, join existing teams via 6-character **Invite Codes (FR-02.3)**, submit project proposal topics, upload GitHub & Google Drive deliverables, and perform teammate peer evaluations (1–10 scores with feedback). |
+| 📋 **Coordinator** | Review submitted proposals (Approve/Reject state machine), run student auto-grouping tool, allocate supervisors with capacity tracking, configure custom **Defense Rubrics & Criteria**, and export multi-format broadsheets. |
 | 👨‍🏫 **Supervisor** | View assigned student teams, inspect GitHub repositories & testing environments, and provide research guidance. |
-| ⚖️ **Defense Panel Member** | Grade defense presentations against Rubric Criteria (Technical Architecture 30 pts, System Demo 35 pts, Q&A Defense 35 pts). |
+| ⚖️ **Defense Panel Member** | Grade defense presentations against custom Rubric Criteria (Technical Architecture, System Demo, Q&A Defense). |
 | 🛡️ **System Administrator** | Manage academic sessions, course tracks (HND & BTech), and system settings. |
 
 ---
@@ -46,7 +46,25 @@ The system is architected as a decoupled **Single Page Application (SPA)** power
 
 ---
 
-## **4. Step-by-Step Installation & Setup Guide**
+## **4. Key Frontend & Backend Features**
+
+### 📱 **Frontend SPA Features**
+- **Client-Side Routing (`react-router-dom`):** Dedicated, bookmarkable routes behind `RequireAuth` role guards (`/`, `/proposals`, `/my-team`, `/supervision`, `/defense`, `/reports`).
+- **Server State & Caching (`@tanstack/react-query`):** Automatic caching, background refetching, and query invalidation on form mutations.
+- **Team Management (FR-02.3):** Dedicated team creation form and team joining form using unique invite codes.
+- **Rubric Configuration Screen:** Coordinators can create and activate custom defense grading rubrics with dynamic criteria and max scores.
+- **Responsive Layout:** Adaptive navigation bar and mobile/tablet drawer support.
+
+### ⚙️ **Backend API Features**
+- **Invite Code System (`POST /api/v1/teams/join`):** Automatically generates unique 6-character alphanumeric invite codes (`Team::booted`) and validates team capacity and student single-team restrictions.
+- **Peer Evaluation Safeguards (`POST /api/v1/teams/peer-evaluations`):** Validates team membership to ensure students can only evaluate teammates within their assigned team.
+- **Single-Team Creation Limit (`POST /api/v1/teams`):** Enforces a one-team-per-student limit.
+- **Rubric API (`POST /api/v1/defense/rubrics`):** Transactional creation of defense rubrics and criteria.
+- **Broadsheet Exporters (`GET /api/v1/exports/broadsheet/csv` & `/pdf`):** Optimized CSV and PDF broadsheet stream generation.
+
+---
+
+## **5. Step-by-Step Installation & Setup Guide**
 
 ### **Prerequisites**
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed on Windows/Mac/Linux.
@@ -82,7 +100,7 @@ docker compose up -d
  ✔ Container fyp_horizon         Started                                   1.1s 
 ```
 
-### **Step 3: Run Database Migrations & Seed 30-Student Demo Dataset**
+### **Step 3: Run Database Migrations & Seed Demo Dataset**
 ```powershell
 docker exec fyp_app php artisan migrate:fresh --seed
 ```
@@ -92,8 +110,8 @@ Dropping all tables ................................................ 25ms DONE
 Running migrations:
   2026_09_03_110000_create_academic_years_and_semesters_table ..... 15ms DONE
   2026_09_03_110001_create_courses_table ........................... 10ms DONE
-  2026_09_03_110002_create_topics_table ............................ 12ms DONE
   ...
+  2026_09_13_000001_add_invite_code_to_teams_table ................. 12ms DONE
 INFO  Seeding: Database\Seeders\RoleSeeder ........................ 45ms DONE
 INFO  Seeding: Database\Seeders\DemoDataSeeder .................... 120ms DONE
 ```
@@ -120,31 +138,31 @@ Open your web browser and navigate to:
 
 ---
 
-## **5. Demo Accounts & Test Credentials**
+## **6. Demo Accounts & Test Credentials**
 
 > **Password for ALL demo accounts:** `password`
 
 | Role | Email Address | Description |
 | :--- | :--- | :--- |
 | **System Admin** | `admin@htu.edu.gh` | Full system access |
-| **Coordinator** | `coordinator@htu.edu.gh` | Auto-grouping, proposal reviews & broadsheet downloads |
+| **Coordinator** | `coordinator@htu.edu.gh` | Auto-grouping, proposal reviews, rubric configuration & broadsheet downloads |
 | **Supervisors (1 - 6)** | `supervisor1@htu.edu.gh` to `supervisor6@htu.edu.gh` | Team supervision & defense rubric grading |
-| **Students (1 - 30)** | `student1@htu.edu.gh` to `student30@htu.edu.gh` | Proposal submission, deliverables & peer review |
+| **Students (1 - 30)** | `student1@htu.edu.gh` to `student30@htu.edu.gh` | Proposal submission, team creation/join via invite code, deliverables & peer review |
 
 *(Tip: You can also click any of the 1-Click Quick Demo Login buttons on the React login screen!)*
 
 ---
 
-## **6. Multi-Format Broadsheet Exporters**
+## **7. Multi-Format Broadsheet Exporters**
 
 Coordinators and Supervisors can export student broadsheet reports directly from the dashboard:
 
-- **CSV / XLSX Export:** `GET /api/v1/exports/broadsheet/csv` (Powered by `maatwebsite/excel`).
+- **CSV Export:** `GET /api/v1/exports/broadsheet/csv` (Powered by `maatwebsite/excel` with eager-loaded student profiles).
 - **Formal PDF Report:** `GET /api/v1/exports/broadsheet/pdf` (Powered by `barryvdh/laravel-dompdf`).
 
 ---
 
-## **7. Project Structure**
+## **8. Project Structure**
 
 ```
 laravel-best/
@@ -152,27 +170,28 @@ laravel-best/
 │   ├── app/
 │   │   ├── Exports/          # Broadsheet CSV/XLSX exporters
 │   │   ├── Events/           # Soketi WebSocket broadcast events
-│   │   ├── Http/Controllers/ # REST API Controllers (Auth, Topic, Team, etc.)
+│   │   ├── Http/Controllers/ # REST API Controllers (Auth, Topic, Team, Defense, etc.)
 │   │   ├── Mail/             # Queued Mailable Notifications
-│   │   └── Models/           # 15 Eloquent Domain Models
+│   │   └── Models/           # 15 Eloquent Domain Models (Team, User, Rubric, etc.)
 │   ├── database/
-│   │   ├── migrations/       # 11 Domain DB Migrations
+│   │   ├── migrations/       # 12 Domain DB Migrations (including team invite codes)
 │   │   └── seeders/          # RoleSeeder & DemoDataSeeder (30 Students)
 │   └── routes/api.php        # Protected API Endpoints
 ├── frontend/                 # React 18 TypeScript SPA Frontend
 │   ├── src/
-│   │   ├── api/              # Axios & Laravel Echo Soketi WebSocket Clients
-│   │   ├── components/       # 8 Modular UI Components (Navbar, ProposalList, etc.)
-│   │   ├── pages/            # Login Screen
-│   │   └── store/            # Zustand Authentication Store
+│   │   ├── api/              # Axios Client & TanStack Query Hooks
+│   │   ├── components/       # Modular UI Components (CreateTeamForm, RubricConfig, etc.)
+│   │   ├── pages/            # Page Views (Overview, Proposals, MyTeam, Defense, Reports)
+│   │   ├── routes/           # React Router v6 Navigation & RequireAuth Guard
+│   │   └── store/            # Zustand Stores (Auth & UI State)
 ├── docker-compose.yml        # Docker Compose Stack Definition
-├── README.md                 # Complete System Documentation
+├── README.md                 # System Documentation
 └── TROUBLESHOOT.md           # Troubleshooting & Diagnostic Guide
 ```
 
 ---
 
-## **8. Container Management & Useful Commands**
+## **9. Container Management & Useful Commands**
 
 ### **Stopping & Shutting Down Containers**
 ```powershell
@@ -200,4 +219,3 @@ docker compose ps
 # Tail live log outputs from all services:
 docker compose logs --tail=30 -f
 ```
-

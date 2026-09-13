@@ -11,11 +11,30 @@ class Team extends Model
 
     protected $fillable = [
         'name',
+        'invite_code',
         'course_id',
         'academic_year_id',
         'max_members',
         'created_by_user_id',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Team $team) {
+            if (empty($team->invite_code)) {
+                $team->invite_code = static::generateUniqueInviteCode();
+            }
+        });
+    }
+
+    public static function generateUniqueInviteCode(): string
+    {
+        do {
+            $code = strtoupper(\Illuminate\Support\Str::random(6));
+        } while (static::where('invite_code', $code)->exists());
+
+        return $code;
+    }
 
     public function course()
     {

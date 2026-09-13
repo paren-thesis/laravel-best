@@ -12,7 +12,7 @@ class ExportController extends Controller
 {
     public function exportBroadsheetCsv()
     {
-        return Excel::download(new BroadsheetExport, 'htu_fyp_broadsheet.csv');
+        return Excel::download(new BroadsheetExport, 'htu_fyp_broadsheet.csv', \Maatwebsite\Excel\Excel::CSV);
     }
 
     public function exportBroadsheetPdf()

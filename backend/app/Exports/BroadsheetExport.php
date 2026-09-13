@@ -11,7 +11,7 @@ class BroadsheetExport implements FromCollection, WithHeadings, WithMapping
 {
     public function collection()
     {
-        return Team::with(['course', 'members', 'approvedTopic', 'supervision.supervisor'])->get();
+        return Team::with(['course', 'members.profile', 'approvedTopic', 'supervision.supervisor'])->get();
     }
 
     public function headings(): array
