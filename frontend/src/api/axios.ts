@@ -1,7 +1,11 @@
 import axios from 'axios';
 
+export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api/v1';
+
+export const AUTH_TOKEN_KEY = 'htu_auth_token';
+
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api/v1',
+  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
@@ -9,7 +13,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('htu_auth_token');
+  const token = localStorage.getItem(AUTH_TOKEN_KEY);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

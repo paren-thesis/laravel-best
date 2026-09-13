@@ -16,10 +16,12 @@ const createEcho = (): Echo<any> | null => {
   try {
     return new Echo({
       broadcaster: 'pusher',
-      key: 'fyp_app_key',
+      key: import.meta.env.VITE_WS_KEY ?? 'fyp_app_key',
       cluster: 'mt1',
-      wsHost: window.location.hostname,
-      wsPort: 6001,
+      // Falling back to the browser's own hostname keeps this working whether the
+      // app is opened on localhost or over the LAN.
+      wsHost: import.meta.env.VITE_WS_HOST || window.location.hostname,
+      wsPort: Number(import.meta.env.VITE_WS_PORT ?? 6001),
       forceTLS: false,
       disableStats: true,
       enabledTransports: ['ws', 'wss'],

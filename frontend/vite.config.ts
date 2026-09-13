@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -20,5 +21,15 @@ export default defineConfig({
       usePolling: true,
       interval: 300,
     },
+  },
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
+    globals: false,
+    css: false,
+    restoreMocks: true,
+    // Vitest's default glob would also collect e2e/*.spec.ts, which are
+    // Playwright tests and cannot run under Vitest.
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
   },
 });

@@ -1,37 +1,30 @@
 import { create } from 'zustand';
-import api from '../api/axios';
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  roles: string[];
-  profile?: any;
-  supervisor_profile?: any;
-}
+import api, { AUTH_TOKEN_KEY } from '../api/axios';
+import type { AuthUser, LoginResponse, MeResponse, RoleName } from '../types';
 
 interface AuthState {
-  user: User | null;
+  user: AuthUser | null;
   token: string | null;
   isLoading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
   fetchMe: () => Promise<void>;
+  hasRole: (...roles: RoleName[]) => boolean;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
-  token: localStorage.getItem('htu_auth_token'),
+  token: localStorage.getItem(AUTH_TOKEN_KEY),
   isLoading: false,
   error: null,
 
   login: async (email, password) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.post('/auth/login', { email, password });
+      const response = await api.post<LoginResponse>('/auth/login', { email, password });
       const { access_token, user } = response.data;
-      localStorage.setItem('htu_auth_token', access_token);
+      localStorage.setItem(AUTH_TOKEN_KEY, access_token);
       set({ token: access_token, user, isLoading: false });
       return true;
     } catch (err: any) {
@@ -44,23 +37,28 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: async () => {
     try {
       await api.post('/auth/logout');
-    } catch (e) {
-      // ignore
+    } catch {
+      // The token is being discarded either way.
     } finally {
-      localStorage.removeItem('htu_auth_token');
+      localStorage.removeItem(AUTH_TOKEN_KEY);
       set({ user: null, token: null });
     }
   },
 
   fetchMe: async () => {
-    if (!localStorage.getItem('htu_auth_token')) return;
+    if (!localStorage.getItem(AUTH_TOKEN_KEY)) return;
     set({ isLoading: true });
     try {
-      const response = await api.get('/auth/me');
+      const response = await api.get<MeResponse>('/auth/me');
       set({ user: response.data.user, isLoading: false });
-    } catch (err) {
-      localStorage.removeItem('htu_auth_token');
+    } catch {
+      localStorage.removeItem(AUTH_TOKEN_KEY);
       set({ user: null, token: null, isLoading: false });
     }
+  },
+
+  hasRole: (...roles) => {
+    const user = get().user;
+    return user ? roles.some((role) => user.roles.includes(role)) : false;
   },
 }));
