@@ -128,6 +128,17 @@ class TeamController extends Controller
             return response()->json(['message' => 'You cannot evaluate yourself.'], 422);
         }
 
+        $team = Team::with('members')->findOrFail($validated['team_id']);
+        $memberUserIds = $team->members->pluck('id')->all();
+
+        if (!in_array($evaluatorId, $memberUserIds)) {
+            return response()->json(['message' => 'You are not a member of this team.'], 422);
+        }
+
+        if (!in_array($validated['evaluatee_id'], $memberUserIds)) {
+            return response()->json(['message' => 'The evaluatee is not a member of this team.'], 422);
+        }
+
         $evaluation = PeerEvaluation::updateOrCreate(
             [
                 'team_id' => $validated['team_id'],
