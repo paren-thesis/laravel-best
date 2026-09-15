@@ -2,8 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Light is the default. The dark palette is applied by a `dark` class on <html>,
+ * set by the theme store, which follows the system setting until the user picks
+ * a side. Every value is a raw "R G B" triplet so Tailwind opacity modifiers
+ * keep working.
+ */
 :root {
+  color-scheme: light;
+
+  --canvas: 248 250 252;        /* slate-50  */
+  --panel: 255 255 255;         /* white     */
+  --sunken: 248 250 252;        /* slate-50  */
+  --raised: 241 245 249;        /* slate-100 */
+  --raised-hover: 226 232 240;  /* slate-200 */
+
+  --line: 226 232 240;          /* slate-200 */
+  --line-strong: 203 213 225;   /* slate-300 */
+
+  /* A step darker than the dark-theme equivalents: a grey that reads clearly
+     on slate-950 fails WCAG AA on white. slate-400 on white is only 2.6:1. */
+  --ink: 15 23 42;              /* slate-900 */
+  --ink-body: 51 65 85;         /* slate-700 */
+  --ink-muted: 71 85 105;       /* slate-600 */
+  --ink-subtle: 100 116 139;    /* slate-500 */
+
+  /* Status text sits on a 10% tint of itself, so it needs to be darker than
+     the usual 600 shade to clear 4.5:1 against that near-white ground. */
+  --accent: 79 70 229;          /* indigo-600  */
+  --accent-strong: 67 56 202;   /* indigo-700  */
+  --ok: 6 95 70;                /* emerald-800 */
+  --warn: 146 64 14;            /* amber-800   */
+  --danger: 159 18 57;          /* rose-800    */
+}
+
+.dark {
   color-scheme: dark;
+
+  --canvas: 2 6 23;             /* slate-950 */
+  --panel: 15 23 42;            /* slate-900 */
+  --sunken: 2 6 23;             /* slate-950 */
+  --raised: 30 41 59;           /* slate-800 */
+  --raised-hover: 51 65 85;     /* slate-700 */
+
+  --line: 30 41 59;             /* slate-800 */
+  --line-strong: 51 65 85;      /* slate-700 */
+
+  --ink: 255 255 255;
+  --ink-body: 226 232 240;      /* slate-200 */
+  --ink-muted: 148 163 184;     /* slate-400 */
+  /* slate-500, used here originally, is only 3.75:1 on these grounds. */
+  --ink-subtle: 130 145 165;
+
+  --accent: 129 140 248;        /* indigo-400 */
+  --accent-strong: 99 102 241;  /* indigo-500 */
+  --ok: 52 211 153;             /* emerald-400 */
+  --warn: 251 191 36;           /* amber-400   */
+  --danger: 251 113 133;        /* rose-400    */
 }
 
 body {

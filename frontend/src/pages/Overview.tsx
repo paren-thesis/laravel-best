@@ -15,13 +15,13 @@ interface StatCardProps {
 }
 
 const StatCard: React.FC<StatCardProps> = ({ label, value, hint, icon: Icon }) => (
-  <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-2">
+  <div className="bg-panel border border-line rounded-2xl p-5 space-y-2">
     <div className="flex items-center justify-between">
-      <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">{label}</span>
-      <Icon className="w-4 h-4 text-indigo-400" />
+      <span className="text-xs font-semibold uppercase tracking-wider text-ink-subtle">{label}</span>
+      <Icon className="w-4 h-4 text-accent" />
     </div>
-    <div className="text-2xl font-bold text-slate-100 tabular-nums">{value}</div>
-    {hint && <div className="text-xs text-slate-400">{hint}</div>}
+    <div className="text-2xl font-bold text-ink tabular-nums">{value}</div>
+    {hint && <div className="text-xs text-ink-muted">{hint}</div>}
   </div>
 );
 
@@ -72,15 +72,15 @@ export const Overview: React.FC = () => {
       </div>
 
       {isStudent && !myTeam && (
-        <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-5 text-sm text-amber-300/90">
+        <div className="bg-warn/5 border border-warn/20 rounded-2xl p-5 text-sm text-warn/90">
           You are not a member of any project team yet. Proposal, deliverable and peer-evaluation
           forms stay locked until you join one.
         </div>
       )}
 
       {isStaff && awaitingReview > 0 && (
-        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 flex flex-wrap items-center justify-between gap-3">
-          <span className="text-sm text-slate-300">
+        <div className="bg-panel border border-line rounded-2xl p-5 flex flex-wrap items-center justify-between gap-3">
+          <span className="text-sm text-ink-body">
             {awaitingReview} proposal{awaitingReview === 1 ? '' : 's'} waiting on a review decision.
           </span>
           <Link
@@ -92,7 +92,7 @@ export const Overview: React.FC = () => {
         </div>
       )}
 
-      <div className="text-xs text-slate-500">
+      <div className="text-xs text-ink-subtle">
         {teams.length} team{teams.length === 1 ? '' : 's'} registered this academic year.
       </div>
     </div>

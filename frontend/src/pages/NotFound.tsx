@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom';
 import { Compass } from 'lucide-react';
 
 export const NotFound: React.FC = () => (
-  <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-10 text-center space-y-4">
-    <Compass className="w-10 h-10 text-slate-600 mx-auto" />
+  <div className="bg-panel border border-line rounded-2xl p-10 text-center space-y-4">
+    <Compass className="w-10 h-10 text-ink-subtle mx-auto" />
     <div>
-      <h2 className="text-lg font-semibold text-slate-100">Page not found</h2>
-      <p className="text-sm text-slate-400 mt-1">
+      <h2 className="text-lg font-semibold text-ink">Page not found</h2>
+      <p className="text-sm text-ink-muted mt-1">
         That address does not match any part of the portal.
       </p>
     </div>

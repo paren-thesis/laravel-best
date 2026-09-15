@@ -6,7 +6,7 @@ import { useUiStore } from '../store/useUiStore';
 import { SectionNotice } from './SectionNotice';
 
 const inputClass =
-  'w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 min-h-11 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500';
+  'w-full bg-canvas border border-line rounded-xl px-4 py-2.5 min-h-11 text-sm text-ink-body placeholder-ink-subtle focus:outline-none focus:border-indigo-500';
 
 export const CreateTeamForm: React.FC = () => {
   const user = useAuthStore((state) => state.user);
@@ -48,16 +48,16 @@ export const CreateTeamForm: React.FC = () => {
   }
 
   return (
-    <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-4">
+    <section className="bg-panel border border-line rounded-2xl p-6 space-y-4">
       <div>
-        <h3 className="text-base font-semibold text-white flex items-center gap-2">
-          <UsersRound className="w-4 h-4 text-indigo-400" /> Create a Project Team
+        <h3 className="text-base font-semibold text-ink flex items-center gap-2">
+          <UsersRound className="w-4 h-4 text-accent" /> Create a Project Team
         </h3>
-        <p className="text-xs text-slate-400 mt-1">
+        <p className="text-xs text-ink-muted mt-1">
           You will be registered as the team leader. Teams are created under your own course
           {course ? (
             <>
-              , <span className="text-indigo-400 font-medium">{course.name}</span>
+              , <span className="text-accent font-medium">{course.name}</span>
             </>
           ) : null}
           .

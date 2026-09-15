@@ -10,7 +10,7 @@ import {
 import { useUiStore } from '../store/useUiStore';
 
 const controlClass =
-  'bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 min-h-11 text-sm text-slate-200 focus:outline-none focus:border-indigo-500';
+  'bg-canvas border border-line rounded-xl px-4 py-2.5 min-h-11 text-sm text-ink-body focus:outline-none focus:border-indigo-500';
 
 export const SupervisorAllocation: React.FC = () => {
   const { data: teams = [] } = useTeams();
@@ -52,8 +52,8 @@ export const SupervisorAllocation: React.FC = () => {
   return (
     <section className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-          <Users className="w-5 h-5 text-indigo-400" /> Supervisor Allocation &amp; Grouping
+        <h3 className="text-lg font-semibold text-ink flex items-center gap-2">
+          <Users className="w-5 h-5 text-accent" /> Supervisor Allocation &amp; Grouping
         </h3>
         <button
           onClick={handleAutoGroup}
@@ -65,8 +65,8 @@ export const SupervisorAllocation: React.FC = () => {
         </button>
       </div>
 
-      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
-        <h4 className="text-sm font-semibold text-slate-200 mb-4">
+      <div className="bg-panel border border-line rounded-2xl p-6">
+        <h4 className="text-sm font-semibold text-ink-body mb-4">
           Allocate Supervisor to Team (Capacity Enforced)
         </h4>
         <form onSubmit={handleAssign} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -95,7 +95,7 @@ export const SupervisorAllocation: React.FC = () => {
           <button
             type="submit"
             disabled={assignSupervisor.isPending}
-            className="py-2.5 px-4 min-h-11 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-medium text-sm rounded-xl transition-all flex items-center justify-center gap-1.5"
+            className="py-2.5 px-4 min-h-11 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white font-medium text-sm rounded-xl transition-all flex items-center justify-center gap-1.5"
           >
             <UserCheck className="w-4 h-4" />
             {assignSupervisor.isPending ? 'Assigning...' : 'Assign Supervisor'}

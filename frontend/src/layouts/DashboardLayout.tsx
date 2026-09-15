@@ -44,14 +44,14 @@ export const DashboardLayout: React.FC = () => {
   }, [location.pathname, clearMessage]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">
+    <div className="min-h-screen bg-canvas text-ink font-sans">
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {message && (
-          <div className="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-sm flex items-center justify-between gap-4">
+          <div className="p-4 rounded-xl bg-accent/10 border border-accent/20 text-accent text-sm flex items-center justify-between gap-4">
             <span>{message}</span>
-            <button onClick={clearMessage} className="text-xs underline text-indigo-400 shrink-0">
+            <button onClick={clearMessage} className="text-xs underline text-accent shrink-0">
               Dismiss
             </button>
           </div>

@@ -27,10 +27,10 @@ export const TeamInviteCode: React.FC<TeamInviteCodeProps> = ({ team }) => {
   // the generator only runs when a team is created.
   if (!team.invite_code) {
     return (
-      <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-4 flex items-start gap-3">
-        <AlertCircle className="w-5 h-5 shrink-0 text-amber-400/80 mt-0.5" />
-        <div className="text-sm text-slate-400">
-          <span className="text-slate-300 font-medium">No invite code yet.</span> This team was
+      <div className="bg-sunken border border-line rounded-xl p-4 flex items-start gap-3">
+        <AlertCircle className="w-5 h-5 shrink-0 text-warn/80 mt-0.5" />
+        <div className="text-sm text-ink-muted">
+          <span className="text-ink-body font-medium">No invite code yet.</span> This team was
           created before invite codes existed, so there is nothing to share. A coordinator needs to
           issue one before anyone can join with a code.
         </div>
@@ -39,13 +39,13 @@ export const TeamInviteCode: React.FC<TeamInviteCodeProps> = ({ team }) => {
   }
 
   return (
-    <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-3">
+    <div className="bg-sunken border border-line rounded-xl p-4 space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
-          <div className="text-xs font-semibold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+          <div className="text-xs font-semibold uppercase tracking-wider text-ink-subtle flex items-center gap-1.5">
             <KeyRound className="w-3.5 h-3.5" /> Invite code
           </div>
-          <div className="text-xl font-bold font-mono tracking-[0.3em] text-indigo-400 mt-1">
+          <div className="text-xl font-bold font-mono tracking-[0.3em] text-accent mt-1">
             {team.invite_code}
           </div>
         </div>
@@ -53,11 +53,11 @@ export const TeamInviteCode: React.FC<TeamInviteCodeProps> = ({ team }) => {
         <button
           type="button"
           onClick={handleCopy}
-          className="py-2 px-4 min-h-11 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium transition-all flex items-center gap-2 shrink-0"
+          className="py-2 px-4 min-h-11 rounded-xl bg-raised hover:bg-raised-hover text-ink-body text-sm font-medium transition-all flex items-center gap-2 shrink-0"
         >
           {copied ? (
             <>
-              <Check className="w-4 h-4 text-emerald-400" /> Copied
+              <Check className="w-4 h-4 text-ok" /> Copied
             </>
           ) : (
             <>
@@ -67,11 +67,11 @@ export const TeamInviteCode: React.FC<TeamInviteCodeProps> = ({ team }) => {
         </button>
       </div>
 
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-ink-muted">
         {spacesLeft > 0 ? (
           <>
             Share this with teammates so they can join.{' '}
-            <span className="text-slate-300">
+            <span className="text-ink-body">
               {spacesLeft} place{spacesLeft === 1 ? '' : 's'} left
             </span>{' '}
             of {maxMembers}.

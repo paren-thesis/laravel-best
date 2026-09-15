@@ -9,7 +9,7 @@ interface CriterionDraft {
 }
 
 const inputClass =
-  'bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 min-h-11 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500';
+  'bg-canvas border border-line rounded-xl px-4 py-2.5 min-h-11 text-sm text-ink-body placeholder-ink-subtle focus:outline-none focus:border-indigo-500';
 
 const emptyCriterion = (): CriterionDraft => ({ title: '', maxPoints: '' });
 
@@ -64,24 +64,24 @@ export const RubricManager: React.FC = () => {
     <div className="space-y-8">
       {/* ---------- Existing rubrics ---------- */}
       <section className="space-y-4">
-        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-          <ClipboardList className="w-5 h-5 text-indigo-400" /> Active Rubrics
+        <h3 className="text-lg font-semibold text-ink flex items-center gap-2">
+          <ClipboardList className="w-5 h-5 text-accent" /> Active Rubrics
         </h3>
 
         {isLoading && (
-          <div className="p-8 text-center bg-slate-900/40 border border-slate-800 rounded-2xl text-slate-500 text-sm">
+          <div className="p-8 text-center bg-panel/60 border border-line rounded-2xl text-ink-subtle text-sm">
             Loading rubrics...
           </div>
         )}
 
         {isError && (
-          <div className="p-8 text-center bg-rose-500/5 border border-rose-500/20 rounded-2xl text-rose-400 text-sm">
+          <div className="p-8 text-center bg-danger/5 border border-danger/20 rounded-2xl text-danger text-sm">
             Could not load rubrics. Check that the API is running.
           </div>
         )}
 
         {!isLoading && !isError && rubrics.length === 0 && (
-          <div className="p-8 text-center bg-slate-900/40 border border-slate-800 rounded-2xl text-slate-500 text-sm">
+          <div className="p-8 text-center bg-panel/60 border border-line rounded-2xl text-ink-subtle text-sm">
             No active rubric yet. Create one below — defense scoring cannot begin without it.
           </div>
         )}
@@ -90,23 +90,23 @@ export const RubricManager: React.FC = () => {
           const total = rubric.criteria.reduce((sum, c) => sum + (Number(c.max_points) || 0), 0);
 
           return (
-            <div key={rubric.id} className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-4">
+            <div key={rubric.id} className="bg-panel border border-line rounded-2xl p-6 space-y-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <h4 className="font-semibold text-slate-100 text-base">{rubric.title}</h4>
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <h4 className="font-semibold text-ink text-base">{rubric.title}</h4>
+                  <p className="text-xs text-ink-muted mt-0.5">
                     {rubric.criteria.length} criteri{rubric.criteria.length === 1 ? 'on' : 'a'}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
                   {rubric.is_active && (
-                    <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-ok/10 text-ok border border-ok/20">
                       <CheckCircle2 className="w-3.5 h-3.5" /> Active
                     </span>
                   )}
                   <div className="text-right">
-                    <div className="text-xs uppercase tracking-wider text-slate-500 font-semibold">Total</div>
-                    <div className="text-lg font-bold text-indigo-400 tabular-nums">{total} pts</div>
+                    <div className="text-xs uppercase tracking-wider text-ink-subtle font-semibold">Total</div>
+                    <div className="text-lg font-bold text-accent tabular-nums">{total} pts</div>
                   </div>
                 </div>
               </div>
@@ -114,7 +114,7 @@ export const RubricManager: React.FC = () => {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="text-left text-xs uppercase tracking-wider text-slate-500">
+                    <tr className="text-left text-xs uppercase tracking-wider text-ink-subtle">
                       <th className="pb-2 font-semibold">Criterion</th>
                       <th className="pb-2 font-semibold text-right w-28">Max points</th>
                       <th className="pb-2 font-semibold text-right w-24">Share</th>
@@ -122,15 +122,15 @@ export const RubricManager: React.FC = () => {
                   </thead>
                   <tbody>
                     {rubric.criteria.map((c) => (
-                      <tr key={c.id} className="border-t border-slate-800/80">
-                        <td className="py-2.5 pr-4 text-slate-200">
+                      <tr key={c.id} className="border-t border-line">
+                        <td className="py-2.5 pr-4 text-ink-body">
                           {c.title}
                           {c.description && (
-                            <div className="text-xs text-slate-500 mt-0.5">{c.description}</div>
+                            <div className="text-xs text-ink-subtle mt-0.5">{c.description}</div>
                           )}
                         </td>
-                        <td className="py-2.5 text-right text-slate-300 tabular-nums">{c.max_points}</td>
-                        <td className="py-2.5 text-right text-slate-400 tabular-nums">
+                        <td className="py-2.5 text-right text-ink-body tabular-nums">{c.max_points}</td>
+                        <td className="py-2.5 text-right text-ink-muted tabular-nums">
                           {total > 0 ? `${Math.round((c.max_points / total) * 100)}%` : '—'}
                         </td>
                       </tr>
@@ -144,12 +144,12 @@ export const RubricManager: React.FC = () => {
       </section>
 
       {/* ---------- Create ---------- */}
-      <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-4">
+      <section className="bg-panel border border-line rounded-2xl p-6 space-y-4">
         <div>
-          <h3 className="text-base font-semibold text-white flex items-center gap-2">
-            <Plus className="w-4 h-4 text-indigo-400" /> Create a New Rubric
+          <h3 className="text-base font-semibold text-ink flex items-center gap-2">
+            <Plus className="w-4 h-4 text-accent" /> Create a New Rubric
           </h3>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-ink-muted mt-1">
             Each criterion contributes its maximum points to the total score examiners award.
           </p>
         </div>
@@ -189,7 +189,7 @@ export const RubricManager: React.FC = () => {
                   onClick={() => removeCriterion(index)}
                   disabled={drafts.length <= 1}
                   title="Remove criterion"
-                  className="h-11 w-11 flex items-center justify-center rounded-xl bg-slate-800 hover:bg-rose-600/20 hover:text-rose-400 disabled:opacity-30 disabled:hover:bg-slate-800 disabled:hover:text-slate-400 text-slate-400 transition-all"
+                  className="h-11 w-11 flex items-center justify-center rounded-xl bg-raised hover:bg-danger/20 hover:text-danger disabled:opacity-30 disabled:hover:bg-raised disabled:hover:text-ink-muted text-ink-muted transition-all"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -201,13 +201,13 @@ export const RubricManager: React.FC = () => {
             <button
               type="button"
               onClick={addCriterion}
-              className="px-3.5 py-2 min-h-11 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs rounded-xl transition-all flex items-center gap-1.5"
+              className="px-3.5 py-2 min-h-11 bg-raised hover:bg-raised-hover text-ink-body font-medium text-xs rounded-xl transition-all flex items-center gap-1.5"
             >
               <Plus className="w-4 h-4" /> Add criterion
             </button>
-            <div className="text-sm text-slate-400">
+            <div className="text-sm text-ink-muted">
               Total score:{' '}
-              <span className="font-bold text-indigo-400 tabular-nums">{draftTotal} pts</span>
+              <span className="font-bold text-accent tabular-nums">{draftTotal} pts</span>
             </div>
           </div>
 

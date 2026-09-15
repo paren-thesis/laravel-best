@@ -23,9 +23,9 @@ export const RequireAuth: React.FC<RequireAuthProps> = ({ roles }) => {
   // Showing the login screen here would bounce a signed-in user out on refresh.
   if (!user) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3 text-slate-400">
-          <span className="w-8 h-8 border-2 border-slate-700 border-t-indigo-500 rounded-full animate-spin" />
+      <div className="min-h-screen bg-canvas flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-ink-muted">
+          <span className="w-8 h-8 border-2 border-line-strong border-t-indigo-500 rounded-full animate-spin" />
           <span className="text-sm">Restoring your session...</span>
         </div>
       </div>

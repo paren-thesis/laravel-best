@@ -34,12 +34,12 @@ export const JoinTeamForm: React.FC = () => {
   };
 
   return (
-    <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-4">
+    <section className="bg-panel border border-line rounded-2xl p-6 space-y-4">
       <div>
-        <h3 className="text-base font-semibold text-white flex items-center gap-2">
-          <KeyRound className="w-4 h-4 text-indigo-400" /> Join an Existing Team
+        <h3 className="text-base font-semibold text-ink flex items-center gap-2">
+          <KeyRound className="w-4 h-4 text-accent" /> Join an Existing Team
         </h3>
-        <p className="text-xs text-slate-400 mt-1">
+        <p className="text-xs text-ink-muted mt-1">
           Ask the team leader for their invite code.
         </p>
       </div>
@@ -55,7 +55,7 @@ export const JoinTeamForm: React.FC = () => {
           autoCorrect="off"
           spellCheck={false}
           aria-label="Invite code"
-          className="flex-1 min-w-0 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 min-h-11 text-sm text-slate-200 placeholder-slate-600 font-mono tracking-[0.3em] uppercase focus:outline-none focus:border-indigo-500"
+          className="flex-1 min-w-0 bg-canvas border border-line rounded-xl px-4 py-2.5 min-h-11 text-sm text-ink-body placeholder-ink-subtle font-mono tracking-[0.3em] uppercase focus:outline-none focus:border-indigo-500"
         />
         <button
           type="submit"

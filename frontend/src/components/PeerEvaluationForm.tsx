@@ -7,7 +7,7 @@ import { useUiStore } from '../store/useUiStore';
 import { SectionNotice } from './SectionNotice';
 
 const inputClass =
-  'bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 min-h-11 text-sm text-slate-200 focus:outline-none focus:border-indigo-500';
+  'bg-canvas border border-line rounded-xl px-4 py-2.5 min-h-11 text-sm text-ink-body focus:outline-none focus:border-indigo-500';
 
 export const PeerEvaluationForm: React.FC = () => {
   const { team, isLoading } = useMyTeam();
@@ -71,13 +71,13 @@ export const PeerEvaluationForm: React.FC = () => {
   }
 
   return (
-    <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-4">
+    <section className="bg-panel border border-line rounded-2xl p-6 space-y-4">
       <div>
-        <h3 className="text-base font-semibold text-white flex items-center gap-2">
-          <Award className="w-4 h-4 text-indigo-400" /> Teammate Peer Evaluation
+        <h3 className="text-base font-semibold text-ink flex items-center gap-2">
+          <Award className="w-4 h-4 text-accent" /> Teammate Peer Evaluation
         </h3>
-        <p className="text-xs text-slate-400 mt-1">
-          Rating teammates in <span className="text-indigo-400 font-medium">{team.name}</span>.
+        <p className="text-xs text-ink-muted mt-1">
+          Rating teammates in <span className="text-accent font-medium">{team.name}</span>.
           Submitting again for the same teammate updates your previous rating.
         </p>
       </div>
