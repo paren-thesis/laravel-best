@@ -103,6 +103,11 @@ export interface SoftwareDeliverable {
 export interface Team {
   id: number;
   name: string;
+  /**
+   * Generated on creation. Null for any team that existed before the column
+   * was added, since the generator runs in a `creating` hook.
+   */
+  invite_code: string | null;
   course_id: number;
   academic_year_id: number;
   max_members: number | null;

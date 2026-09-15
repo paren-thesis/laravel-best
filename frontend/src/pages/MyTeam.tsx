@@ -1,6 +1,8 @@
 import React from 'react';
 import { Crown, UsersRound } from 'lucide-react';
 import { CreateTeamForm } from '../components/CreateTeamForm';
+import { JoinTeamForm } from '../components/JoinTeamForm';
+import { TeamInviteCode } from '../components/TeamInviteCode';
 import { DeliverablesForm } from '../components/DeliverablesForm';
 import { PeerEvaluationForm } from '../components/PeerEvaluationForm';
 import { SectionNotice } from '../components/SectionNotice';
@@ -15,7 +17,12 @@ export const MyTeam: React.FC = () => {
         <SectionNotice title="My Project Team" titleIcon={UsersRound} message="Loading your team..." />
       )}
 
-      {!isLoading && !team && <CreateTeamForm />}
+      {!isLoading && !team && (
+        <>
+          <JoinTeamForm />
+          <CreateTeamForm />
+        </>
+      )}
 
       {team && (
         <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-5">
@@ -57,6 +64,8 @@ export const MyTeam: React.FC = () => {
               </div>
             ))}
           </div>
+
+          <TeamInviteCode team={team} />
 
           {team.approved_topic && (
             <div className="pt-4 border-t border-slate-800">

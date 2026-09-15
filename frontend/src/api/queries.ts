@@ -81,6 +81,15 @@ export const useCreateTeam = () => {
   });
 };
 
+export const useJoinTeam = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { invite_code: string }) =>
+      (await api.post('/teams/join', input)).data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.teams }),
+  });
+};
+
 export const useAutoGroup = () => {
   const qc = useQueryClient();
   return useMutation({

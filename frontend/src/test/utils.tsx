@@ -47,9 +47,15 @@ export const makeMember = (id: number, name: string, leader = false): TeamMember
   },
 });
 
-export const makeTeam = (id: number, name: string, members: TeamMember[]): Team => ({
+export const makeTeam = (
+  id: number,
+  name: string,
+  members: TeamMember[],
+  inviteCode: string | null = 'ABC123',
+): Team => ({
   id,
   name,
+  invite_code: inviteCode,
   course_id: 1,
   academic_year_id: 1,
   max_members: 4,
