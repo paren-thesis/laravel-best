@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from './axios';
 import type {
+  AuditLog,
   DefenseResponse,
+  PaginatedResponse,
   SupervisionsResponse,
   TeamsResponse,
   TopicsResponse,
@@ -12,6 +14,7 @@ export const queryKeys = {
   teams: ['teams'] as const,
   supervisions: ['supervisions'] as const,
   defense: ['defense'] as const,
+  auditLogs: ['audit-logs'] as const,
 };
 
 /* ---------- Queries ---------- */
@@ -38,6 +41,22 @@ export const useDefenseConfig = () =>
   useQuery({
     queryKey: queryKeys.defense,
     queryFn: async () => (await api.get<DefenseResponse>('/defense/panels')).data,
+  });
+
+export interface AuditLogFilters {
+  page?: number;
+  per_page?: number;
+  action?: string;
+  search?: string;
+  from_date?: string;
+  to_date?: string;
+}
+
+export const useAuditLogs = (filters: AuditLogFilters = {}) =>
+  useQuery({
+    queryKey: [...queryKeys.auditLogs, filters] as const,
+    queryFn: async () =>
+      (await api.get<PaginatedResponse<AuditLog>>('/audit-logs', { params: filters })).data,
   });
 
 /* ---------- Mutations ---------- */

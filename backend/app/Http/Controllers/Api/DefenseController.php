@@ -8,6 +8,7 @@ use App\Models\DefensePanel;
 use App\Models\Evaluation;
 use App\Models\Rubric;
 use App\Models\RubricCriteria;
+use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -51,6 +52,13 @@ class DefenseController extends Controller
             return $newRubric->load('criteria');
         });
 
+        AuditLogger::log(
+            'rubric.created',
+            "Evaluation rubric '{$rubric->title}' created with max score {$rubric->max_score}.",
+            $rubric,
+            ['title' => $rubric->title, 'max_score' => $rubric->max_score, 'criteria_count' => count($validated['criteria'])]
+        );
+
         return response()->json([
             'message' => 'Rubric created successfully',
             'rubric' => $rubric
@@ -90,6 +98,15 @@ class DefenseController extends Controller
                 $evaluations[] = $eval;
             }
         });
+
+        $totalScore = array_sum(array_column($validated['scores'], 'score'));
+
+        AuditLogger::log(
+            'defense.evaluated',
+            "Defense evaluation scored for team #{$validated['team_id']} by {$request->user()->name} (Total score: {$totalScore}).",
+            null,
+            ['team_id' => $validated['team_id'], 'panel_id' => $validated['panel_id'], 'total_score' => $totalScore]
+        );
 
         return response()->json([
             'message' => 'Defense evaluation submitted successfully',

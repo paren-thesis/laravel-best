@@ -8,6 +8,7 @@ use App\Models\PeerEvaluation;
 use App\Models\Team;
 use App\Models\TeamMember;
 use App\Models\User;
+use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -55,6 +56,8 @@ class TeamController extends Controller
 
             return $newTeam;
         });
+
+        AuditLogger::log('team.created', "Project team '{$team->name}' created by {$request->user()->name}.", $team);
 
         return response()->json([
             'message' => 'Team created successfully',
@@ -112,6 +115,13 @@ class TeamController extends Controller
             }
         });
 
+        AuditLogger::log(
+            'team.auto_grouped',
+            "Auto-grouped " . count($unassignedStudents) . " students into " . count($createdTeams) . " teams.",
+            null,
+            ['teams_created' => count($createdTeams), 'students_count' => count($unassignedStudents)]
+        );
+
         return response()->json([
             'message' => 'Auto-grouping completed successfully',
             'teams_created' => count($createdTeams),
@@ -158,6 +168,13 @@ class TeamController extends Controller
             ]
         );
 
+        AuditLogger::log(
+            'peer_evaluation.submitted',
+            "Peer evaluation submitted for student #{$validated['evaluatee_id']} on team '{$team->name}' with score {$validated['score']}/10.",
+            $evaluation,
+            ['score' => $validated['score'], 'evaluatee_id' => $validated['evaluatee_id']]
+        );
+
         return response()->json([
             'message' => 'Peer evaluation submitted successfully',
             'evaluation' => $evaluation
@@ -199,6 +216,8 @@ class TeamController extends Controller
             'user_id' => $user->id,
             'role_in_team' => 'member',
         ]);
+
+        AuditLogger::log('team.joined', "Student {$user->name} joined team '{$team->name}' using invite code.", $team);
 
         return response()->json([
             'message' => 'Successfully joined the project team.',

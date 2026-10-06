@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -26,6 +27,8 @@ class AuthController extends Controller
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
+
+        AuditLogger::log('user.login', "User {$user->name} ({$user->email}) logged in.", $user);
 
         return response()->json([
             'message' => 'Login successful',
@@ -60,7 +63,11 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $user = $request->user();
+        if ($user) {
+            AuditLogger::log('user.logout', "User {$user->name} ({$user->email}) logged out.", $user);
+            $user->currentAccessToken()->delete();
+        }
 
         return response()->json([
             'message' => 'Successfully logged out'

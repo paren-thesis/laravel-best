@@ -199,6 +199,35 @@ export interface DefenseResponse {
   rubrics: Rubric[];
 }
 
+export interface AuditLog {
+  id: number;
+  user_id: number | null;
+  action: string;
+  auditable_type: string | null;
+  auditable_id: number | null;
+  description: string;
+  payload: Record<string, unknown> | null;
+  ip_address: string | null;
+  user_agent: string | null;
+  created_at: string;
+  user?: Pick<AuthUser, 'id' | 'name' | 'email'> | null;
+}
+
+export interface PaginatedResponse<T> {
+  current_page: number;
+  data: T[];
+  first_page_url: string;
+  from: number | null;
+  last_page: number;
+  last_page_url: string;
+  next_page_url: string | null;
+  path: string;
+  per_page: number;
+  prev_page_url: string | null;
+  to: number | null;
+  total: number;
+}
+
 /* ---------- Helpers ---------- */
 
 /** tech_stack is a JSON column that has been seen as both an array and a string. */

@@ -1,7 +1,7 @@
 # **HTU Final Year Project Management & Defense Scoring System**
 
 > **Ho Technical University (HTU) — Department of Computer Science**  
-> A comprehensive, containerized enterprise web application for managing student final-year project proposals, supervisor workload allocations, peer evaluations, multi-format broadsheet exports, queued notifications, and real-time defense rubric scoring.
+> A comprehensive, containerized enterprise web application for managing student final-year project proposals, supervisor workload allocations, peer evaluations, multi-format broadsheet exports, queued notifications, system-wide audit logging, and real-time defense rubric scoring.
 
 ---
 
@@ -11,7 +11,7 @@ The system is architected as a decoupled **Single Page Application (SPA)** power
 
 - **Backend API:** Laravel 11 (PHP 8.3) with Sanctum Token Authentication & Spatie RBAC.
 - **Frontend SPA:** React 18 + TypeScript + Vite, styled with Tailwind CSS, Lucide Icons, React Router v6 & TanStack Query (React Query).
-- **Database:** MySQL 8.0 relational database with 12 domain tables (including team invite code support).
+- **Database:** MySQL 8.0 relational database with 13 domain tables (including audit logs & team invite code support).
 - **Caching & Queues:** Redis 7 memory store with Laravel Horizon queue worker.
 - **Real-Time WebSockets:** Soketi WebSocket Server with Laravel Echo event broadcasting.
 - **Email Portal:** Mailpit SMTP mail capturer.
@@ -24,10 +24,10 @@ The system is architected as a decoupled **Single Page Application (SPA)** power
 | Role | Primary Responsibilities & Capabilities |
 | :--- | :--- |
 | 🎓 **Student** | Create project teams, join existing teams via 6-character **Invite Codes (FR-02.3)**, submit project proposal topics, upload GitHub & Google Drive deliverables, and perform teammate peer evaluations (1–10 scores with feedback). |
-| 📋 **Coordinator** | Review submitted proposals (Approve/Reject state machine), run student auto-grouping tool, allocate supervisors with capacity tracking, configure custom **Defense Rubrics & Criteria**, and export multi-format broadsheets. |
+| 📋 **Coordinator** | Review submitted proposals (Approve/Reject state machine), run student auto-grouping tool, allocate supervisors with capacity tracking, configure custom **Defense Rubrics & Criteria**, inspect **System Audit Logs**, and export multi-format broadsheets. |
 | 👨‍🏫 **Supervisor** | View assigned student teams, inspect GitHub repositories & testing environments, and provide research guidance. |
 | ⚖️ **Defense Panel Member** | Grade defense presentations against custom Rubric Criteria (Technical Architecture, System Demo, Q&A Defense). |
-| 🛡️ **System Administrator** | Manage academic sessions, course tracks (HND & BTech), and system settings. |
+| 🛡️ **System Administrator** | Manage academic sessions, course tracks (HND & BTech), inspect audit trails, and system settings. |
 
 ---
 
@@ -49,13 +49,15 @@ The system is architected as a decoupled **Single Page Application (SPA)** power
 ## **4. Key Frontend & Backend Features**
 
 ### 📱 **Frontend SPA Features**
-- **Client-Side Routing (`react-router-dom`):** Dedicated, bookmarkable routes behind `RequireAuth` role guards (`/`, `/proposals`, `/my-team`, `/supervision`, `/defense`, `/reports`).
+- **Client-Side Routing (`react-router-dom`):** Dedicated, bookmarkable routes behind `RequireAuth` role guards (`/`, `/proposals`, `/my-team`, `/supervision`, `/defense`, `/rubrics`, `/reports`, `/audit-logs`).
 - **Server State & Caching (`@tanstack/react-query`):** Automatic caching, background refetching, and query invalidation on form mutations.
 - **Team Management (FR-02.3):** Dedicated team creation form and team joining form using unique invite codes.
 - **Rubric Configuration Screen:** Coordinators can create and activate custom defense grading rubrics with dynamic criteria and max scores.
+- **System Audit Log Viewer (`/audit-logs`):** Interactive event trail viewer with action badge filters, search bar, expandable JSON metadata payload drawer, and standard pagination.
 - **Responsive Layout:** Adaptive navigation bar and mobile/tablet drawer support.
 
 ### ⚙️ **Backend API Features**
+- **Audit Logging System (`GET /api/v1/audit-logs`):** Central `AuditLogger` service recording user logins/logouts, topic lifecycle changes, team creations/joins, supervisor assignments, deliverable uploads, rubric creations, and defense scoring (restricted to Coordinators & Admins).
 - **Invite Code System (`POST /api/v1/teams/join`):** Automatically generates unique 6-character alphanumeric invite codes (`Team::booted`) and validates team capacity and student single-team restrictions.
 - **Peer Evaluation Safeguards (`POST /api/v1/teams/peer-evaluations`):** Validates team membership to ensure students can only evaluate teammates within their assigned team.
 - **Single-Team Creation Limit (`POST /api/v1/teams`):** Enforces a one-team-per-student limit.
@@ -112,6 +114,7 @@ Running migrations:
   2026_09_03_110001_create_courses_table ........................... 10ms DONE
   ...
   2026_09_13_000001_add_invite_code_to_teams_table ................. 12ms DONE
+  2026_10_06_000001_create_audit_logs_table ........................ 15ms DONE
 INFO  Seeding: Database\Seeders\RoleSeeder ........................ 45ms DONE
 INFO  Seeding: Database\Seeders\DemoDataSeeder .................... 120ms DONE
 ```
@@ -144,8 +147,8 @@ Open your web browser and navigate to:
 
 | Role | Email Address | Description |
 | :--- | :--- | :--- |
-| **System Admin** | `admin@htu.edu.gh` | Full system access |
-| **Coordinator** | `coordinator@htu.edu.gh` | Auto-grouping, proposal reviews, rubric configuration & broadsheet downloads |
+| **System Admin** | `admin@htu.edu.gh` | Full system access & audit logs |
+| **Coordinator** | `coordinator@htu.edu.gh` | Auto-grouping, proposal reviews, rubric configuration, audit log inspection & broadsheet downloads |
 | **Supervisors (1 - 6)** | `supervisor1@htu.edu.gh` to `supervisor6@htu.edu.gh` | Team supervision & defense rubric grading |
 | **Students (1 - 30)** | `student1@htu.edu.gh` to `student30@htu.edu.gh` | Proposal submission, team creation/join via invite code, deliverables & peer review |
 
@@ -170,18 +173,19 @@ laravel-best/
 │   ├── app/
 │   │   ├── Exports/          # Broadsheet CSV/XLSX exporters
 │   │   ├── Events/           # Soketi WebSocket broadcast events
-│   │   ├── Http/Controllers/ # REST API Controllers (Auth, Topic, Team, Defense, etc.)
+│   │   ├── Http/Controllers/ # REST API Controllers (Auth, Topic, Team, Defense, AuditLog, etc.)
 │   │   ├── Mail/             # Queued Mailable Notifications
-│   │   └── Models/           # 15 Eloquent Domain Models (Team, User, Rubric, etc.)
+│   │   ├── Models/           # 16 Eloquent Domain Models (Team, User, AuditLog, Rubric, etc.)
+│   │   └── Services/         # AuditLogger service helper
 │   ├── database/
-│   │   ├── migrations/       # 12 Domain DB Migrations (including team invite codes)
+│   │   ├── migrations/       # 13 Domain DB Migrations (including audit logs & invite codes)
 │   │   └── seeders/          # RoleSeeder & DemoDataSeeder (30 Students)
 │   └── routes/api.php        # Protected API Endpoints
 ├── frontend/                 # React 18 TypeScript SPA Frontend
 │   ├── src/
-│   │   ├── api/              # Axios Client & TanStack Query Hooks
+│   │   ├── api/              # Axios Client & TanStack Query Hooks (useAuditLogs, etc.)
 │   │   ├── components/       # Modular UI Components (CreateTeamForm, RubricConfig, etc.)
-│   │   ├── pages/            # Page Views (Overview, Proposals, MyTeam, Defense, Reports)
+│   │   ├── pages/            # Page Views (Overview, Proposals, MyTeam, Defense, Reports, AuditLogs)
 │   │   ├── routes/           # React Router v6 Navigation & RequireAuth Guard
 │   │   └── store/            # Zustand Stores (Auth & UI State)
 ├── docker-compose.yml        # Docker Compose Stack Definition

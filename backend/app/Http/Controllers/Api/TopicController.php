@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Topic;
+use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 
 class TopicController extends Controller
@@ -57,6 +58,13 @@ class TopicController extends Controller
             'submitted_at' => now(),
         ]);
 
+        AuditLogger::log(
+            'topic.submitted',
+            "Project topic proposal '{$topic->title}' submitted.",
+            $topic,
+            ['title' => $topic->title, 'team_id' => $topic->team_id]
+        );
+
         return response()->json([
             'message' => 'Project proposal submitted successfully',
             'topic' => $topic->load('team')
@@ -76,6 +84,13 @@ class TopicController extends Controller
             'reviewed_at' => now(),
             'reviewed_by_user_id' => $request->user()->id,
         ]);
+
+        AuditLogger::log(
+            "topic.{$validated['status']}",
+            "Project topic '{$topic->title}' was {$validated['status']} by {$request->user()->name}.",
+            $topic,
+            ['status' => $validated['status'], 'review_notes' => $validated['review_notes'] ?? null]
+        );
 
         // Dispatch queued email notification to team members
         if ($topic->team && $topic->team->members->isNotEmpty()) {

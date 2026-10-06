@@ -5,6 +5,7 @@ import {
   FileDown,
   FileText,
   LayoutDashboard,
+  ScrollText,
   UserCheck,
   UsersRound,
 } from 'lucide-react';
@@ -31,6 +32,7 @@ export const NAV_ITEMS: NavItem[] = [
   },
   { to: '/rubrics', label: 'Rubrics', icon: ClipboardList, roles: ['coordinator', 'admin'] },
   { to: '/reports', label: 'Reports', icon: FileDown, roles: ['coordinator', 'admin', 'supervisor'] },
+  { to: '/audit-logs', label: 'Audit Logs', icon: ScrollText, roles: ['coordinator', 'admin'] },
 ];
 
 export const visibleNavItems = (roles: RoleName[]): NavItem[] =>

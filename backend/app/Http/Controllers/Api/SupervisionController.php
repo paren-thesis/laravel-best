@@ -7,8 +7,8 @@ use App\Models\AcademicYear;
 use App\Models\Supervision;
 use App\Models\SupervisorProfile;
 use App\Models\User;
+use App\Services\AuditLogger;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class SupervisionController extends Controller
 {
@@ -75,6 +75,13 @@ class SupervisionController extends Controller
         $supervisorProfile->update([
             'current_team_count' => Supervision::where('supervisor_id', $supervisor->id)->count()
         ]);
+
+        AuditLogger::log(
+            'supervisor.assigned',
+            "Supervisor {$supervisor->name} assigned to team #{$validated['team_id']} by {$request->user()->name}.",
+            $supervision,
+            ['team_id' => $validated['team_id'], 'supervisor_id' => $supervisor->id]
+        );
 
         // Dispatch queued email to supervisor & team leader
         \Illuminate\Support\Facades\Mail::to($supervisor->email)
