@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AuditLogController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DefenseController;
 use App\Http\Controllers\Api\DeliverableController;
@@ -47,4 +48,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     // Multi-Format Broadsheet & Team Exporters
     Route::get('/exports/broadsheet/csv', [\App\Http\Controllers\Api\ExportController::class, 'exportBroadsheetCsv'])->middleware('role:coordinator|admin|supervisor');
     Route::get('/exports/broadsheet/pdf', [\App\Http\Controllers\Api\ExportController::class, 'exportBroadsheetPdf'])->middleware('role:coordinator|admin|supervisor');
+
+    // System Audit Logs
+    Route::get('/audit-logs', [AuditLogController::class, 'index'])->middleware('role:coordinator|admin');
 });

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\SoftwareDeliverable;
+use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 
 class DeliverableController extends Controller
@@ -33,6 +34,13 @@ class DeliverableController extends Controller
                 'environment_details' => $validated['environment_details'] ?? null,
                 'submitted_by_user_id' => $request->user()->id,
             ]
+        );
+
+        AuditLogger::log(
+            'deliverable.submitted',
+            "Software deliverables submitted for team #{$validated['team_id']} by {$request->user()->name}.",
+            $deliverable,
+            ['team_id' => $validated['team_id'], 'github_url' => $validated['github_repository_url'] ?? null]
         );
 
         return response()->json([
