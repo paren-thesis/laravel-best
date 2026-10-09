@@ -66,7 +66,10 @@ The system is architected as a decoupled **Single Page Application (SPA)** power
 
 ---
 
-## **5. Step-by-Step Installation & Setup Guide**
+## **5. First-Time Installation & Setup Guide**
+
+> [!NOTE]
+> The steps below are for **initial setup only**. For normal day-to-day development, see **[Section 6: Daily Development Workflow](#6-daily-development-workflow-subsequent-starts)** — you only need to run `docker compose up -d`!
 
 ### **Prerequisites**
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed on Windows/Mac/Linux.
@@ -102,7 +105,11 @@ docker compose up -d
  ✔ Container fyp_horizon         Started                                   1.1s 
 ```
 
-### **Step 3: Run Database Migrations & Seed Demo Dataset**
+### **Step 3: Run Database Migrations & Seed Demo Dataset (Initial Setup Only)**
+
+> [!WARNING]
+> Running `migrate:fresh --seed` **drops and deletes all existing tables and data**. Do **not** run this during routine daily startup, or any new data you created in the app will be wiped out!
+
 ```powershell
 docker exec fyp_app php artisan migrate:fresh --seed
 ```
@@ -119,7 +126,7 @@ INFO  Seeding: Database\Seeders\RoleSeeder ........................ 45ms DONE
 INFO  Seeding: Database\Seeders\DemoDataSeeder .................... 120ms DONE
 ```
 
-### **Step 4: Publish Horizon Queue Dashboard Assets**
+### **Step 4: Publish Horizon Queue Dashboard Assets (One-Time Scaffolding)**
 ```powershell
 docker exec fyp_app php artisan horizon:install
 ```
@@ -141,7 +148,42 @@ Open your web browser and navigate to:
 
 ---
 
-## **6. Demo Accounts & Test Credentials**
+## **6. Daily Development Workflow (Subsequent Starts)**
+
+Do you need to run all commands every time you start the project? **No!** Your database data, packages, and environment settings are preserved in Docker volumes and the local filesystem.
+
+### 🟢 **Starting the Project (Only 1 Command)**
+Whenever you sit down to work:
+```powershell
+docker compose up -d
+```
+*(or `docker compose start` if you previously stopped the containers)*
+
+All 9 services will boot up immediately. You can go straight to [`http://localhost:5173`](http://localhost:5173).
+
+### 🔴 **Stopping at the End of the Day**
+```powershell
+# Pause containers (fastest to resume):
+docker compose stop
+
+# Or stop and remove containers (data remains safe in volume fyp_db_data):
+docker compose down
+```
+
+### 📋 **Which Command to Run When?**
+
+| Command | Frequency | Purpose |
+| :--- | :--- | :--- |
+| `docker compose up -d` | **Every session** | Starts all containers in the background. |
+| `docker compose stop` | **End of session** | Pauses running containers. |
+| `docker compose down` | **When needed** | Stops containers (database data is preserved in Docker volume). |
+| `docker exec fyp_app php artisan migrate` | **Only when new migrations are added** | Safely applies new database tables/columns **without** losing existing data. |
+| `docker exec fyp_app php artisan migrate:fresh --seed` | **Only to reset database** | ⚠️ **Wipes all tables** and restores the initial sample demo data. |
+| `docker exec fyp_app php artisan horizon:install` | **Only once** | Initial scaffolding installation. Never needed again. |
+
+---
+
+## **7. Demo Accounts & Test Credentials**
 
 > **Password for ALL demo accounts:** `password`
 
@@ -156,7 +198,7 @@ Open your web browser and navigate to:
 
 ---
 
-## **7. Multi-Format Broadsheet Exporters**
+## **8. Multi-Format Broadsheet Exporters**
 
 Coordinators and Supervisors can export student broadsheet reports directly from the dashboard:
 
@@ -165,7 +207,7 @@ Coordinators and Supervisors can export student broadsheet reports directly from
 
 ---
 
-## **8. Project Structure**
+## **9. Project Structure**
 
 ```
 laravel-best/
@@ -195,7 +237,7 @@ laravel-best/
 
 ---
 
-## **9. Container Management & Useful Commands**
+## **10. Container Management & Useful Commands**
 
 ### **Stopping & Shutting Down Containers**
 ```powershell
